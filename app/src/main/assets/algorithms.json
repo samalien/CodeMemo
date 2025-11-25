@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "Recherche séquentielle",
+    "category": "Recherche",
+    "description": "Parcourt le tableau élément par élément.",
+    "pseudocode": "POUR i de 0 à n-1\n  SI tab[i] == valeur ALORS RETOURNER i\nRETOURNER -1",
+    "python": "def recherche_sequentielle(tab, valeur):\n    for i in range(len(tab)):\n        if tab[i] == valeur:\n            return i\n    return -1",
+    "exampleInput": "[10, 3, 5, 7, 2], valeur = 5",
+    "exampleOutput": "2"
+  },
+  {
+    "id": 2,
+    "name": "Tri à bulles",
+    "category": "Tri",
+    "description": "Compare et échange les éléments adjacents.",
+    "pseudocode": "POUR i de 0 à n-2\n  POUR j de 0 à n-i-2\n    SI tab[j] > tab[j+1] ALORS échanger\n...",
+    "python": "def tri_bulles(tab):\n    n = len(tab)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if tab[j] > tab[j+1]:\n                tab[j], tab[j+1] = tab[j+1], tab[j]\n    return tab",
+    "exampleInput": "[64, 34, 25, 12]",
+    "exampleOutput": "[12, 25, 34, 64]"
+  }
+]

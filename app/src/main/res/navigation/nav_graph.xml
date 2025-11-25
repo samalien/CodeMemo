@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.samaali.codememo.ui.home.HomeFragment"
+        android:label="Accueil" >
+        <action
+            android:id="@+id/action_homeFragment_to_algorithmFragment"
+            app:destination="@id/algorithmFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_executionFragment"
+            app:destination="@id/executionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/algorithmFragment"
+        android:name="com.samaali.codememo.ui.algorithm.AlgorithmFragment"
+        android:label="Fiche Algorithme" >
+        <action
+            android:id="@+id/action_algorithmFragment_to_executionFragment"
+            app:destination="@id/executionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/executionFragment"
+        android:name="com.samaali.codememo.ui.execution.ExecutionFragment"
+        android:label="Zone d'exécution" />
+</navigation>
