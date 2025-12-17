@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.samaali.codememo" />
+                  <option name="mobileSdkAppId" value="1:100581009842:android:cdfaae2518d230bc219cab" />
+                  <option name="projectId" value="codememo-39880" />
+                  <option name="projectNumber" value="100581009842" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

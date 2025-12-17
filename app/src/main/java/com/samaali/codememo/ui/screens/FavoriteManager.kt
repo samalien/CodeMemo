@@ -1,4 +1,3 @@
-// ui/utils/FavoriteManager.kt
 package com.samaali.codememo.ui.utils
 
 import android.content.Context
@@ -39,6 +38,11 @@ object FavoriteManager {
 
     fun getFavoriteList(context: Context): List<Int> {
         return getFavorites(context).toList().sorted()
+    }
+
+    // NOUVELLE FONCTION AJOUTÉE POUR LA SYNCHRONISATION
+    fun saveAll(context: Context, newFavorites: Set<Int>) {
+        saveFavorites(context, newFavorites)
     }
 
     private fun getFavorites(context: Context): Set<Int> {

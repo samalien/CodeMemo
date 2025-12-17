@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "100581009842",
+    "project_id": "codememo-39880",
+    "storage_bucket": "codememo-39880.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100581009842:android:cdfaae2518d230bc219cab",
+        "android_client_info": {
+          "package_name": "com.samaali.codememo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxMONpt26Qn0XGVengbnso1fxo1xeNBM8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
