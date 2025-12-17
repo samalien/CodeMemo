@@ -65,6 +65,7 @@ dependencies {
 
     // AJOUTS POUR ROOM, utilisation de la variable val
     implementation("androidx.room:room-ktx:$room_version")
+    implementation(libs.androidx.compose.material3)
     ksp("androidx.room:room-compiler:$room_version")
 
     // Debug
@@ -74,4 +75,5 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     testImplementation(kotlin("test"))
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    implementation(libs.codeeditor)   // ← plus de tirets ici non plus
 }
