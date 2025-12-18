@@ -28,6 +28,7 @@ import com.samaali.codememo.ui.screens.HomeScreen
 import androidx.navigation.NavType
 import androidx.compose.runtime.*
 import com.samaali.codememo.ui.screens.FavoritesScreen
+import com.samaali.codememo.ui.screens.ProfileScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController = rememberNavController()) {
@@ -54,7 +55,8 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
 
             // ÉCRAN PROFIL – Style 2025
             composable(Screen.Profile.route) {
-                ProfileScreen()
+                //ProfileScreen()
+                ProfileScreen(navController = navController)
             }
 
             // Tes écrans existants
