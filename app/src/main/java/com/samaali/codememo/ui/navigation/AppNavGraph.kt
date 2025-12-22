@@ -61,7 +61,12 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
                 val id = backStackEntry.arguments?.getInt("algorithmId") ?: 0
                 // On passe l'ID (algo ou exo perso) comme algorithmId
                 // Ton PythonExecutionScreen chargera le bon code grâce à la logique interne
-                PythonExecutionScreen(algorithmId = id, navController = navController)
+                //PythonExecutionScreen(algorithmId = id, navController = navController)
+                PythonExecutionScreen(
+                    algorithmId = id,
+                    userExerciseId = id, // On ajoute cette ligne !
+                    navController = navController
+                )
             }
         }
     }

@@ -51,21 +51,32 @@ fun PythonExecutionScreen(
     var codeToExecute by remember { mutableStateOf("Chargement...") }  // Le code à afficher et exécuter
 
     // Chargement du bon code (priorité à l'exo perso)
+// DANS PythonExecutionScreen.kt
     LaunchedEffect(algorithmId, userExerciseId) {
-        scope.launch {
+        // 1. On réinitialise pour éviter d'afficher l'ancien code
+        codeToExecute = "Chargement..."
+
+        // 2. On effectue la recherche en arrière-plan
+        val result = withContext(Dispatchers.IO) {
+            var foundCode: String? = null
+
+            // PRIORITÉ 1 : Exercice Personnel
             if (userExerciseId != null) {
-                // On cherche l'exo perso en premier
                 val allExos = userRepo.getAll().first()
                 val exo = allExos.find { it.id == userExerciseId }
-                codeToExecute = exo?.python ?: "Exercice non trouvé"
-            } else if (algorithmId != null) {
-                // Sinon, on charge l'algo standard
-                val algo = withContext(Dispatchers.IO) {
-                    algoRepo.getAlgorithmById(algorithmId)
-                }
-                codeToExecute = algo?.python ?: "Algorithme non trouvé"
+                if (exo != null) foundCode = exo.python
             }
+
+            // PRIORITÉ 2 : Algorithme Standard (si pas trouvé en perso)
+            if (foundCode == null && algorithmId != null) {
+                val algo = algoRepo.getAlgorithmById(algorithmId)
+                foundCode = algo?.python
+            }
+
+            foundCode
         }
+
+        codeToExecute = result ?: "Code non trouvé (ID: $userExerciseId / $algorithmId)"
     }
 
     Scaffold(
