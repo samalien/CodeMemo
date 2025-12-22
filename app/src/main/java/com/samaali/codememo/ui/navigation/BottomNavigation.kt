@@ -1,4 +1,3 @@
-// ui/navigation/BottomNavigation.kt
 package com.samaali.codememo.ui.navigation
 
 import androidx.compose.material3.Icon
@@ -21,9 +20,10 @@ fun CodeMemoBottomBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    // Mise à jour : on affiche la barre sur Home, Mes Exos, Favoris, Profil
     val showBottomBar = currentRoute in listOf(
         Screen.Home.route,
-        Screen.Search.route,
+        Screen.MyExos.route,      // ← Remplacé Search par MyExos
         Screen.Favorites.route,
         Screen.Profile.route
     )
@@ -51,17 +51,21 @@ fun CodeMemoBottomBar(navController: NavController) {
                 )
             )
 
-            // === RECHERCHE ===
+            // === MES EXOS (anciennement Recherche) ===
             NavigationBarItem(
-                selected = currentRoute == Screen.Search.route,
+                selected = currentRoute == Screen.MyExos.route,
                 onClick = {
-                    navController.navigate(Screen.Search.route) {
+                    navController.navigate(Screen.MyExos.route) {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
                     }
                 },
-                icon = { Icon(ImageVector.vectorResource(R.drawable.ic_search), "Recherche") },
-                label = { Text("Recherche") },
+                icon = {
+                    // Tu peux utiliser une icône livre, crayon ou plus
+                    Icon(ImageVector.vectorResource(R.drawable.ic_book), "Mes Exos")
+                    // Si tu n’as pas ic_book, tu peux utiliser ic_add ou ic_edit
+                },
+                label = { Text("Mes Exos") },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.secondary,
                     selectedTextColor = MaterialTheme.colorScheme.secondary,

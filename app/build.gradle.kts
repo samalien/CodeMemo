@@ -42,6 +42,7 @@ android {
 } // Fin du bloc android {}
 
 dependencies {
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     // BOM (Bill of Materials) pour Compose
     implementation(platform("androidx.compose:compose-bom:2024.10.01"))
 
@@ -66,6 +67,8 @@ dependencies {
     // AJOUTS POUR ROOM, utilisation de la variable val
     implementation("androidx.room:room-ktx:$room_version")
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.text)
+    implementation(libs.androidx.foundation)
     ksp("androidx.room:room-compiler:$room_version")
 
     // Debug
@@ -76,4 +79,9 @@ dependencies {
     testImplementation(kotlin("test"))
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     implementation(libs.codeeditor)   // ← plus de tirets ici non plus
+
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+
 }

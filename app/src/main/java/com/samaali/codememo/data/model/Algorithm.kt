@@ -1,12 +1,12 @@
 package com.samaali.codememo.data.model
 
 data class Algorithm(
-    val id: Int,
-    val name: String,
-    val category: String,
-    val description: String,
-    val pseudocode: String,
-    val python: String,
-    val exampleInput: String,
-    val exampleOutput: String
-)
+    override val id: Int,
+    override val name: String,
+    override val description: String,
+    override val category: String,
+    override val pseudocode: String,
+    override val python: String,
+    override val exampleInput: String,
+    override val exampleOutput: String
+) : CodeItem

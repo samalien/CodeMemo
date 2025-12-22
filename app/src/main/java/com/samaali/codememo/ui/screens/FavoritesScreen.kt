@@ -15,7 +15,6 @@ import androidx.navigation.NavController
 import com.samaali.codememo.data.model.Algorithm
 import com.samaali.codememo.data.repository.AlgorithmRepository
 import com.samaali.codememo.ui.utils.FavoriteManager
-import androidx.compose.runtime.produceState
 
 @Composable
 fun FavoritesScreen(navController: NavController) {
@@ -57,7 +56,8 @@ fun FavoritesScreen(navController: NavController) {
                         ) {
                             ListItem(
                                 headlineContent = { Text(algo.name) },
-                                supportingContent = { Text(algo.category ?: "Algorithme") },
+                                // CORRIGÉ : plus de .category qui n'existe pas
+                                supportingContent = { Text(algo.description.take(100) + if (algo.description.length > 100) "..." else "") },
                                 trailingContent = {
                                     Icon(
                                         Icons.Filled.Favorite,

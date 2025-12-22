@@ -19,37 +19,76 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.samaali.codememo.data.model.Algorithm
+import com.samaali.codememo.data.model.UserExercise
 import com.samaali.codememo.data.repository.AlgorithmRepository
+import com.samaali.codememo.data.repository.UserExerciseRepository
 import com.samaali.codememo.ui.utils.FavoriteManager
-
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlgorithmDetailScreen(algorithmId: Int, navController: NavController) {
+fun AlgorithmDetailScreen(
+    algorithmId: Int? = null,
+    userExerciseId: Int? = null,
+    navController: NavController
+) {
     val context = LocalContext.current
-    val repository = remember { AlgorithmRepository(context) }
-    val algorithm by produceState<Algorithm?>(initialValue = null) {
-        value = repository.getAlgorithmById(algorithmId)
+    val algoRepo = remember { AlgorithmRepository(context) }
+    val userRepo = remember { UserExerciseRepository(context) }
+    val coroutineScope = rememberCoroutineScope()
+
+    var algorithm by remember { mutableStateOf<Algorithm?>(null) }
+    var userExercise by remember { mutableStateOf<UserExercise?>(null) }
+
+    // UN SEUL LaunchedEffect qui gère la priorité
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            // 1. Priorité à l'exercice personnalisé
+            if (userExerciseId != null) {
+                val allExos = userRepo.getAll().first()
+                val exo = allExos.find { it.id == userExerciseId }
+                if (exo != null) {
+                    userExercise = exo
+                    return@launch  // On sort : on a trouvé l'exo perso → pas besoin de charger l'algo
+                }
+            }
+
+            // 2. Si pas d'exo perso (ou pas trouvé), on charge l'algo standard
+            if (algorithmId != null) {
+                algorithm = algoRepo.getAlgorithmById(algorithmId)
+            }
+        }
     }
 
-    var isFavorite by remember(algorithmId) {
-        mutableStateOf(FavoriteManager.isFavorite(context, algorithmId))
-    }
-
-    if (algorithm == null) {
-        Box(Modifier.fillMaxSize(), Alignment.Center) {
+    // Loading
+    if (algorithm == null && userExercise == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
         return
     }
 
-    val algo = algorithm!!
+    val isUserExercise = userExercise != null
+    val itemName = if (isUserExercise) userExercise!!.name else algorithm!!.name
+    val itemDescription = if (isUserExercise) userExercise!!.description else algorithm!!.description
+    val itemPseudocode = if (isUserExercise) userExercise!!.pseudocode else algorithm!!.pseudocode
+    val itemPython = if (isUserExercise) userExercise!!.python else algorithm!!.python
+    val itemExampleInput = if (isUserExercise) userExercise!!.exampleInput else algorithm!!.exampleInput
+    val itemExampleOutput = if (isUserExercise) userExercise!!.exampleOutput else algorithm!!.exampleOutput
+
+    var isFavorite by remember { mutableStateOf(false) }
+    val currentId = algorithmId ?: userExerciseId ?: 0
+
+    // Favoris uniquement pour les algos standards
+    if (!isUserExercise && algorithmId != null) {
+        isFavorite = FavoriteManager.isFavorite(context, algorithmId)
+    }
 
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Pseudo-code", "Python", "Exemple")
@@ -57,26 +96,30 @@ fun AlgorithmDetailScreen(algorithmId: Int, navController: NavController) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(algo.name, fontWeight = FontWeight.Bold) },
+                title = { Text(itemName, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Retour")
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        isFavorite = !isFavorite
-                        if (isFavorite) {
-                            FavoriteManager.addFavorite(context, algorithmId)
-                        } else {
-                            FavoriteManager.removeFavorite(context, algorithmId)
+                    if (!isUserExercise && algorithmId != null) {
+                        IconButton(
+                            onClick = {
+                                isFavorite = !isFavorite
+                                if (isFavorite) {
+                                    FavoriteManager.addFavorite(context, currentId)
+                                } else {
+                                    FavoriteManager.removeFavorite(context, currentId)
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favori",
+                                tint = if (isFavorite) MaterialTheme.colorScheme.error else LocalContentColor.current
+                            )
                         }
-                    }) {
-                        Icon(
-                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favori",
-                            tint = if (isFavorite) Color.Red else LocalContentColor.current
-                        )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -92,14 +135,12 @@ fun AlgorithmDetailScreen(algorithmId: Int, navController: NavController) {
                 .verticalScroll(rememberScrollState())
         ) {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Text(
-                    text = algo.description,
+                    text = itemDescription,
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -116,24 +157,22 @@ fun AlgorithmDetailScreen(algorithmId: Int, navController: NavController) {
             }
 
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {
                 when (selectedTab) {
-                    0 -> CodeBlock(algo.pseudocode, isPython = false)
-                    1 -> CodeBlock(algo.python, isPython = true)
-                    2 -> ExampleBlock(algo.exampleInput, algo.exampleOutput)
+                    0 -> CodeBlock(itemPseudocode, isPython = false)
+                    1 -> CodeBlock(itemPython, isPython = true)
+                    2 -> ExampleBlock(itemExampleInput, itemExampleOutput)
                 }
             }
 
             Button(
-                onClick = { navController.navigate("execute/$algorithmId") },
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(16.dp),
+                onClick = {
+                    navController.navigate("execute/$currentId")
+                },
+                modifier = Modifier.align(Alignment.End).padding(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(Icons.Filled.PlayArrow, contentDescription = null)
@@ -152,7 +191,6 @@ fun CodeBlock(code: String, isPython: Boolean = true) {
                 val spannable = SpannableString(code)
 
                 if (isPython) {
-                    // Python : mots-clés en bleu
                     val pythonKeywords = listOf("def", "class", "return", "if", "else", "elif", "for", "while", "in", "import", "from", "as", "try", "except", "finally", "with", "True", "False", "None", "and", "or", "not")
                     pythonKeywords.forEach { keyword ->
                         var start = code.indexOf(keyword)
@@ -164,37 +202,28 @@ fun CodeBlock(code: String, isPython: Boolean = true) {
                             start = code.indexOf(keyword, start + 1)
                         }
                     }
-
-                    // Strings en orange
                     val stringRegex = Regex("""(".*?")|('.*?')""")
                     stringRegex.findAll(code).forEach { match ->
                         spannable.setSpan(ForegroundColorSpan(AndroidColor.parseColor("#CE9178")), match.range.first, match.range.last + 1, 0)
                     }
-
-                    // Commentaires en vert
                     val commentRegex = Regex("#.*")
                     commentRegex.findAll(code).forEach { match ->
                         spannable.setSpan(ForegroundColorSpan(AndroidColor.parseColor("#57A64A")), match.range.first, match.range.last + 1, 0)
                     }
                 } else {
-                    // Pseudo-code français : coloration personnalisée
                     val pseudoKeywords = listOf("Procédure", "POUR", "FIN POUR", "SI", "ALORS", "SINON", "FIN SI", "TANT QUE", "FIN TANT QUE", "RETOURNER", "FONCTION", "DEBUT", "FIN", "VARIABLES", "CONSTANTES")
                     pseudoKeywords.forEach { keyword ->
                         var start = code.indexOf(keyword, ignoreCase = true)
                         while (start != -1) {
                             val end = start + keyword.length
-                            spannable.setSpan(ForegroundColorSpan(AndroidColor.parseColor("#d656ad")), start, end, 0) // Bleu pour les mots-clés
+                            spannable.setSpan(ForegroundColorSpan(AndroidColor.parseColor("#d656ad")), start, end, 0)
                             start = code.indexOf(keyword, start + 1, ignoreCase = true)
                         }
                     }
-
-                    // Commentaires (// ou #)
                     val commentRegex = Regex("(//.*)|(#.*)")
                     commentRegex.findAll(code).forEach { match ->
                         spannable.setSpan(ForegroundColorSpan(AndroidColor.parseColor("#57A64A")), match.range.first, match.range.last + 1, 0)
                     }
-
-                    // Chaînes entre " " ou ' '
                     val stringRegex = Regex("""(".*?")|('.*?')""")
                     stringRegex.findAll(code).forEach { match ->
                         spannable.setSpan(ForegroundColorSpan(AndroidColor.parseColor("#CE9178")), match.range.first, match.range.last + 1, 0)
@@ -212,6 +241,7 @@ fun CodeBlock(code: String, isPython: Boolean = true) {
         modifier = Modifier.fillMaxWidth()
     )
 }
+
 @Composable
 fun ExampleBlock(input: String, output: String) {
     Column(modifier = Modifier.padding(16.dp)) {
