@@ -1,6 +1,5 @@
 package com.samaali.codememo.ui.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -19,8 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.samaali.codememo.data.model.Algorithm
-import com.samaali.codememo.data.model.UserExercise
 import com.samaali.codememo.data.repository.AlgorithmRepository
 import com.samaali.codememo.data.repository.UserExerciseRepository
 import kotlinx.coroutines.Dispatchers
@@ -48,126 +45,82 @@ fun PythonExecutionScreen(
     var isExecuting by remember { mutableStateOf(false) }
     var output by remember { mutableStateOf("Prêt pour l'exécution...") }
     var userInstructions by remember { mutableStateOf("") }
-    var codeToExecute by remember { mutableStateOf("Chargement...") }  // Le code à afficher et exécuter
+    var codeToExecute by remember { mutableStateOf("Chargement...") }
 
-    // Chargement du bon code (priorité à l'exo perso)
-// DANS PythonExecutionScreen.kt
     LaunchedEffect(algorithmId, userExerciseId) {
-        // 1. On réinitialise pour éviter d'afficher l'ancien code
-        codeToExecute = "Chargement..."
-
-        // 2. On effectue la recherche en arrière-plan
         val result = withContext(Dispatchers.IO) {
             var foundCode: String? = null
-
-            // PRIORITÉ 1 : Exercice Personnel
             if (userExerciseId != null) {
                 val allExos = userRepo.getAll().first()
                 val exo = allExos.find { it.id == userExerciseId }
                 if (exo != null) foundCode = exo.python
             }
-
-            // PRIORITÉ 2 : Algorithme Standard (si pas trouvé en perso)
             if (foundCode == null && algorithmId != null) {
                 val algo = algoRepo.getAlgorithmById(algorithmId)
                 foundCode = algo?.python
             }
-
             foundCode
         }
-
-        codeToExecute = result ?: "Code non trouvé (ID: $userExerciseId / $algorithmId)"
+        codeToExecute = result ?: "Code non trouvé"
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Exécuteur Python") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Retour")
-                    }
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(
+            title = { Text("Exécuteur Python") },
+            navigationIcon = {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Retour")
                 }
-            )
-        },
-        floatingActionButton = {
+            }
+        )
+
+        Box(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                Text("Code source :", style = MaterialTheme.typography.labelLarge)
+                Card(
+                    modifier = Modifier.fillMaxWidth().height(150.dp).padding(vertical = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
+                ) {
+                    Text(
+                        text = codeToExecute,
+                        modifier = Modifier.padding(12.dp).verticalScroll(rememberScrollState()),
+                        style = TextStyle(fontFamily = FontFamily.Monospace, color = Color.LightGray, fontSize = 13.sp)
+                    )
+                }
+                OutlinedTextField(
+                    value = userInstructions,
+                    onValueChange = { userInstructions = it },
+                    label = { Text("Instructions supplémentaires") },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(fontFamily = FontFamily.Monospace)
+                )
+                Spacer(Modifier.height(16.dp))
+                Text("Console :", fontWeight = FontWeight.Bold)
+                Card(
+                    modifier = Modifier.fillMaxWidth().weight(1f).padding(top = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Black)
+                ) {
+                    Text(
+                        text = output,
+                        modifier = Modifier.padding(12.dp).fillMaxSize().verticalScroll(rememberScrollState()),
+                        style = TextStyle(fontFamily = FontFamily.Monospace, color = if (output.contains("Erreur")) Color.Red else Color.Green, fontSize = 14.sp)
+                    )
+                }
+            }
+
             FloatingActionButton(
                 onClick = {
                     if (!isExecuting && codeToExecute.isNotBlank()) {
-                        val fullCode = "$codeToExecute\n$userInstructions"
                         isExecuting = true
                         output = "Exécution en cours..."
-                        scope.launch {
-                            output = executePythonRemote(fullCode)
-                            isExecuting = false
-                        }
+                        scope.launch { output = executePythonRemote("$codeToExecute\n$userInstructions"); isExecuting = false }
                     }
                 },
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
                 containerColor = if (isExecuting) Color.Gray else MaterialTheme.colorScheme.primary
             ) {
-                if (isExecuting) {
-                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                } else {
-                    Icon(Icons.Default.PlayArrow, contentDescription = "Exécuter", tint = Color.White)
-                }
-            }
-        }
-    ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
-            Text("Code source :", style = MaterialTheme.typography.labelLarge)
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .padding(vertical = 8.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))
-            ) {
-                Text(
-                    text = codeToExecute,
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .verticalScroll(rememberScrollState()),
-                    style = TextStyle(
-                        fontFamily = FontFamily.Monospace,
-                        color = Color.LightGray,
-                        fontSize = 13.sp
-                    )
-                )
-            }
-
-            OutlinedTextField(
-                value = userInstructions,
-                onValueChange = { userInstructions = it },
-                label = { Text("Instructions Python supplémentaires") },
-                modifier = Modifier.fillMaxWidth(),
-                textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                placeholder = { Text("Ex: print(ma_fonction([1, 2, 3]))", color = Color.Gray) }
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            Text("Console :", fontWeight = FontWeight.Bold)
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(top = 8.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.Black)
-            ) {
-                Text(
-                    text = output,
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                    style = TextStyle(
-                        fontFamily = FontFamily.Monospace,
-                        color = if (output.contains("Erreur")) Color.Red else Color.Green,
-                        fontSize = 14.sp
-                    )
-                )
+                if (isExecuting) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                else Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
             }
         }
     }
@@ -176,29 +129,24 @@ fun PythonExecutionScreen(
 suspend fun executePythonRemote(code: String): String {
     return withContext(Dispatchers.IO) {
         val client = OkHttpClient()
-        val url = "https://emkc.org/api/v2/piston/execute"
         val json = JSONObject().apply {
             put("language", "python")
             put("version", "3.10.0")
-            put("files", org.json.JSONArray().put(JSONObject().apply {
-                put("content", code)
-            }))
+            put("files", org.json.JSONArray().put(JSONObject().apply { put("content", code) }))
         }
-        val body = json.toString().toRequestBody("application/json".toMediaType())
-        val request = Request.Builder().url(url).post(body).build()
-
+        val request = Request.Builder()
+            .url("https://emkc.org/api/v2/piston/execute")
+            .post(json.toString().toRequestBody("application/json".toMediaType()))
+            .build()
         try {
             client.newCall(request).execute().use { response ->
-                val responseData = response.body?.string()
-                if (response.isSuccessful && responseData != null) {
-                    val run = JSONObject(responseData).getJSONObject("run")
-                    val stdout = run.getString("stdout")
-                    val stderr = run.getString("stderr")
-                    if (stderr.isNotEmpty()) "Erreur :\n$stderr" else stdout.ifEmpty { "Succès (pas de sortie)" }
-                } else "Erreur serveur (${response.code})"
+                val data = response.body?.string()
+                if (response.isSuccessful && data != null) {
+                    val run = JSONObject(data).getJSONObject("run")
+                    val err = run.getString("stderr")
+                    if (err.isNotEmpty()) "Erreur :\n$err" else run.getString("stdout").ifEmpty { "Succès" }
+                } else "Erreur serveur"
             }
-        } catch (e: Exception) {
-            "Erreur réseau : ${e.message}"
-        }
+        } catch (e: Exception) { "Erreur réseau" }
     }
 }

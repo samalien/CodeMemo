@@ -14,18 +14,19 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.samaali.codememo.R
-
 @Composable
 fun CodeMemoBottomBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Mise à jour : on affiche la barre sur Home, Mes Exos, Favoris, Profil
+    // AJOUT DES ROUTES DETAIL ET EXECUTE ICI
     val showBottomBar = currentRoute in listOf(
         Screen.Home.route,
-        Screen.MyExos.route,      // ← Remplacé Search par MyExos
+        Screen.MyExos.route,
         Screen.Favorites.route,
-        Screen.Profile.route
+        Screen.Profile.route,
+        Screen.Detail.route,   // Autorise l'affichage sur la page détail
+        Screen.Execute.route   // Autorise l'affichage sur la page exécution python
     )
 
     if (showBottomBar) {
@@ -35,6 +36,7 @@ fun CodeMemoBottomBar(navController: NavController) {
         ) {
             // === ACCUEIL ===
             NavigationBarItem(
+                // On utilise startsWith ou une égalité simple pour garder le bouton Home allumé
                 selected = currentRoute == Screen.Home.route,
                 onClick = {
                     navController.navigate(Screen.Home.route) {
@@ -51,20 +53,17 @@ fun CodeMemoBottomBar(navController: NavController) {
                 )
             )
 
-            // === MES EXOS (anciennement Recherche) ===
+            // === MES EXOS ===
             NavigationBarItem(
-                selected = currentRoute == Screen.MyExos.route,
+                // On considère MyExos sélectionné même si on est dans un détail d'exo
+                selected = currentRoute == Screen.MyExos.route || currentRoute == Screen.Detail.route || currentRoute == Screen.Execute.route,
                 onClick = {
                     navController.navigate(Screen.MyExos.route) {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
                     }
                 },
-                icon = {
-                    // Tu peux utiliser une icône livre, crayon ou plus
-                    Icon(ImageVector.vectorResource(R.drawable.ic_book), "Mes Exos")
-                    // Si tu n’as pas ic_book, tu peux utiliser ic_add ou ic_edit
-                },
+                icon = { Icon(ImageVector.vectorResource(R.drawable.ic_book), "Mes Exos") },
                 label = { Text("Mes Exos") },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.secondary,
