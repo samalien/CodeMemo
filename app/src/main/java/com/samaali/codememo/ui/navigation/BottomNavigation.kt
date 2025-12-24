@@ -14,34 +14,37 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.samaali.codememo.R
+
 @Composable
 fun CodeMemoBottomBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // AJOUT DES ROUTES DETAIL ET EXECUTE ICI
+    val isInAlgoContext = currentRoute?.startsWith("algo_detail/") == true ||
+            currentRoute?.startsWith("algo_execute/") == true
+
+    val isInUserContext = currentRoute?.startsWith("user_detail/") == true ||
+            currentRoute?.startsWith("user_execute/") == true
+
     val showBottomBar = currentRoute in listOf(
         Screen.Home.route,
         Screen.MyExos.route,
         Screen.Favorites.route,
-        Screen.Profile.route,
-        Screen.Detail.route,   // Autorise l'affichage sur la page détail
-        Screen.Execute.route   // Autorise l'affichage sur la page exécution python
-    )
+        Screen.Profile.route
+    ) || isInAlgoContext || isInUserContext
 
     if (showBottomBar) {
         NavigationBar(
             containerColor = MaterialTheme.colorScheme.surface,
             tonalElevation = 12.dp
         ) {
-            // === ACCUEIL ===
             NavigationBarItem(
-                // On utilise startsWith ou une égalité simple pour garder le bouton Home allumé
-                selected = currentRoute == Screen.Home.route,
+                selected = currentRoute == Screen.Home.route || isInAlgoContext,
                 onClick = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 icon = { Icon(ImageVector.vectorResource(R.drawable.ic_home), "Accueil") },
@@ -53,14 +56,13 @@ fun CodeMemoBottomBar(navController: NavController) {
                 )
             )
 
-            // === MES EXOS ===
             NavigationBarItem(
-                // On considère MyExos sélectionné même si on est dans un détail d'exo
-                selected = currentRoute == Screen.MyExos.route || currentRoute == Screen.Detail.route || currentRoute == Screen.Execute.route,
+                selected = currentRoute == Screen.MyExos.route || isInUserContext,
                 onClick = {
                     navController.navigate(Screen.MyExos.route) {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 icon = { Icon(ImageVector.vectorResource(R.drawable.ic_book), "Mes Exos") },
@@ -72,13 +74,13 @@ fun CodeMemoBottomBar(navController: NavController) {
                 )
             )
 
-            // === FAVORIS ===
             NavigationBarItem(
                 selected = currentRoute == Screen.Favorites.route,
                 onClick = {
                     navController.navigate(Screen.Favorites.route) {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 icon = { Icon(ImageVector.vectorResource(R.drawable.ic_favorite), "Favoris") },
@@ -90,13 +92,13 @@ fun CodeMemoBottomBar(navController: NavController) {
                 )
             )
 
-            // === PROFIL ===
             NavigationBarItem(
                 selected = currentRoute == Screen.Profile.route,
                 onClick = {
                     navController.navigate(Screen.Profile.route) {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 icon = { Icon(ImageVector.vectorResource(R.drawable.ic_person), "Profil") },

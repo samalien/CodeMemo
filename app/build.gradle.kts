@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.foundation)
+    implementation(libs.androidx.compose.remote.creation.core)
     ksp("androidx.room:room-compiler:$room_version")
 
     // Debug

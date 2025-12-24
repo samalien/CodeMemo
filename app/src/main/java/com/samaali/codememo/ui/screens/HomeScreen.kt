@@ -17,18 +17,19 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.samaali.codememo.data.model.Algorithm
 import com.samaali.codememo.data.repository.AlgorithmRepository
+import com.samaali.codememo.ui.navigation.Screen
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
     val context = LocalContext.current
     val repository = remember { AlgorithmRepository(context) }
 
-    // Chargement unique
+    // Chargement unique des algorithmes
     val allAlgorithms by produceState<List<Algorithm>?>(initialValue = null) {
         value = repository.getAllAlgorithms()
     }
 
-    // États
+    // États locaux
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<String?>(null) } // null = vue catégories
 
@@ -42,16 +43,15 @@ fun HomeScreen(navController: NavHostController) {
         allAlgorithms?.groupBy { it.category }?.mapValues { it.value.size } ?: emptyMap()
     }
 
-    // Filtrage combiné : recherche texte + catégorie sélectionnée
+    // Filtrage combiné : texte + catégorie
     val filteredAlgorithms = remember(allAlgorithms, searchQuery, selectedCategory) {
         allAlgorithms?.filter { algo ->
-            // Filtre par catégorie sélectionnée
+            // Filtre catégorie
             val matchCategory = when (selectedCategory) {
                 null, "Toutes les catégories" -> true
                 else -> algo.category == selectedCategory
             }
-
-            // Filtre par texte
+            // Filtre recherche texte
             val matchSearch = searchQuery.isBlank() ||
                     algo.name.contains(searchQuery, ignoreCase = true) ||
                     algo.category.contains(searchQuery, ignoreCase = true)
@@ -65,18 +65,16 @@ fun HomeScreen(navController: NavHostController) {
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-
-        // === En-tête : titre + retour ===
+        // === En-tête : titre + bouton retour si dans une catégorie ===
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (selectedCategory != null && selectedCategory != "Toutes les catégories") {
                 IconButton(onClick = { selectedCategory = null }) {
-                    Icon(Icons.Filled.ArrowBack, "Retour")
+                    Icon(Icons.Filled.ArrowBack, contentDescription = "Retour")
                 }
             }
-
             Text(
                 text = when {
                     selectedCategory == null -> "CodeMemo - Catégories"
@@ -93,34 +91,37 @@ fun HomeScreen(navController: NavHostController) {
         // === Barre de recherche toujours visible ===
         OutlinedTextField(
             value = searchQuery,
-            onValueChange = {
-                searchQuery = it
-                // Si on tape, on revient automatiquement à la vue "algorithmes" si on était dans les catégories
-                if (selectedCategory == null && it.isNotBlank()) {
+            onValueChange = { newQuery ->
+                searchQuery = newQuery
+                // Si on commence à taper, on passe automatiquement à la vue "algorithmes"
+                if (selectedCategory == null && newQuery.isNotBlank()) {
                     selectedCategory = "Toutes les catégories"
                 }
             },
             label = { Text("Rechercher un algorithme...") },
-            leadingIcon = {
-                Icon(Icons.Filled.Search, contentDescription = "Rechercher")
-            },
+            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Rechercher") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // === Vue 1 : Liste des catégories (quand rien n'est sélectionné et pas de recherche active) ===
+        // === Vue 1 : Liste des catégories (quand rien sélectionné et pas de recherche) ===
         if (selectedCategory == null && searchQuery.isBlank()) {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(categories) { category ->
-                    val count = if (category == "Toutes les catégories")
+                    val count = if (category == "Toutes les catégories") {
                         allAlgorithms?.size ?: 0
-                    else categoryCounts[category] ?: 0
-
+                    } else {
+                        categoryCounts[category] ?: 0
+                    }
                     Card(
                         onClick = {
-                            selectedCategory = if (category == "Toutes les catégories") "Toutes les catégories" else category
+                            selectedCategory = if (category == "Toutes les catégories") {
+                                "Toutes les catégories"
+                            } else {
+                                category
+                            }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -144,7 +145,7 @@ fun HomeScreen(navController: NavHostController) {
                                 )
                             }
                             Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Default.ArrowForwardIos,
+                                imageVector = Icons.Default.ArrowForwardIos,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                                 modifier = Modifier.size(18.dp)
@@ -154,13 +155,16 @@ fun HomeScreen(navController: NavHostController) {
                 }
             }
         }
-        // === Vue 2 : Liste des algorithmes (filtrés par catégorie + recherche) ===
+        // === Vue 2 : Liste des algorithmes filtrés ===
         else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(filteredAlgorithms) { algo ->
                     AlgorithmCard(
                         algorithm = algo,
-                        onClick = { navController.navigate("detail/${algo.id}") }
+                        // ← CHANGEMENT IMPORTANT ICI : nouvelle route
+                        onClick = {
+                            navController.navigate(Screen.AlgoDetail.createRoute(algo.id))
+                        }
                     )
                 }
 

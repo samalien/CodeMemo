@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import com.samaali.codememo.data.model.UserExercise
 import com.samaali.codememo.data.repository.UserExerciseRepository
 import kotlinx.coroutines.launch
+import com.samaali.codememo.ui.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -148,7 +149,7 @@ fun MyExosScreen(navController: NavController) {
                             .padding(horizontal = 12.dp, vertical = 6.dp),
                         // CLIC SUR LA CARTE → navigation vers le détail (réutilise la route Detail)
                         onClick = {
-                            navController.navigate("detail/${exo.id}")
+                            navController.navigate(Screen.UserDetail.createRoute(exo.id))
                         }
                     ) {
                         Row(
