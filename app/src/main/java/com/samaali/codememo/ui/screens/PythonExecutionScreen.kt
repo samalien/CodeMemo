@@ -118,7 +118,7 @@ fun PythonExecutionScreen(
                 OutlinedTextField(
                     value = userInstructions,
                     onValueChange = { userInstructions = it },
-                    label = { Text("Instructions supplémentaires (ex: entrée stdin)") },
+                    label = { Text("Appel de la fonction pour test") },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(fontFamily = FontFamily.Monospace),
                     placeholder = { Text("Ex: 5\n10\npour input() multiples") }

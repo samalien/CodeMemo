@@ -18,6 +18,16 @@ import androidx.navigation.NavHostController
 import com.samaali.codememo.data.model.Algorithm
 import com.samaali.codememo.data.repository.AlgorithmRepository
 import com.samaali.codememo.ui.navigation.Screen
+import java.text.Normalizer
+
+/* =========================================================
+   UTILITAIRE : normalisation (suppression des accents)
+   ========================================================= */
+fun normalizeText(text: String): String {
+    return Normalizer.normalize(text, Normalizer.Form.NFD)
+        .replace("\\p{Mn}+".toRegex(), "")
+        .lowercase()
+}
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
@@ -43,18 +53,24 @@ fun HomeScreen(navController: NavHostController) {
         allAlgorithms?.groupBy { it.category }?.mapValues { it.value.size } ?: emptyMap()
     }
 
-    // Filtrage combiné : texte + catégorie
+    // Filtrage combiné : texte + catégorie (ACCENTS SUPPORTÉS)
     val filteredAlgorithms = remember(allAlgorithms, searchQuery, selectedCategory) {
+        val normalizedQuery = normalizeText(searchQuery)
+
         allAlgorithms?.filter { algo ->
-            // Filtre catégorie
+            // --- Filtre catégorie
             val matchCategory = when (selectedCategory) {
                 null, "Toutes les catégories" -> true
                 else -> algo.category == selectedCategory
             }
-            // Filtre recherche texte
+
+            // --- Filtre recherche (accent-insensible)
+            val normalizedName = normalizeText(algo.name)
+            val normalizedCategory = normalizeText(algo.category)
+
             val matchSearch = searchQuery.isBlank() ||
-                    algo.name.contains(searchQuery, ignoreCase = true) ||
-                    algo.category.contains(searchQuery, ignoreCase = true)
+                    normalizedName.contains(normalizedQuery) ||
+                    normalizedCategory.contains(normalizedQuery)
 
             matchCategory && matchSearch
         } ?: emptyList()
@@ -65,7 +81,8 @@ fun HomeScreen(navController: NavHostController) {
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        // === En-tête : titre + bouton retour si dans une catégorie ===
+
+        // === En-tête ===
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -88,12 +105,11 @@ fun HomeScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // === Barre de recherche toujours visible ===
+        // === Barre de recherche ===
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { newQuery ->
                 searchQuery = newQuery
-                // Si on commence à taper, on passe automatiquement à la vue "algorithmes"
                 if (selectedCategory == null && newQuery.isNotBlank()) {
                     selectedCategory = "Toutes les catégories"
                 }
@@ -106,7 +122,7 @@ fun HomeScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // === Vue 1 : Liste des catégories (quand rien sélectionné et pas de recherche) ===
+        // === Vue catégories ===
         if (selectedCategory == null && searchQuery.isBlank()) {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(categories) { category ->
@@ -115,13 +131,12 @@ fun HomeScreen(navController: NavHostController) {
                     } else {
                         categoryCounts[category] ?: 0
                     }
+
                     Card(
                         onClick = {
-                            selectedCategory = if (category == "Toutes les catégories") {
-                                "Toutes les catégories"
-                            } else {
-                                category
-                            }
+                            selectedCategory =
+                                if (category == "Toutes les catégories") "Toutes les catégories"
+                                else category
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -155,15 +170,16 @@ fun HomeScreen(navController: NavHostController) {
                 }
             }
         }
-        // === Vue 2 : Liste des algorithmes filtrés ===
+        // === Vue algorithmes ===
         else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(filteredAlgorithms) { algo ->
                     AlgorithmCard(
                         algorithm = algo,
-                        // ← CHANGEMENT IMPORTANT ICI : nouvelle route
                         onClick = {
-                            navController.navigate(Screen.AlgoDetail.createRoute(algo.id))
+                            navController.navigate(
+                                Screen.AlgoDetail.createRoute(algo.id)
+                            )
                         }
                     )
                 }
@@ -178,11 +194,17 @@ fun HomeScreen(navController: NavHostController) {
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
-                                    text = if (searchQuery.isNotBlank()) "Aucun résultat" else "Aucun algorithme",
+                                    text = if (searchQuery.isNotBlank())
+                                        "Aucun résultat"
+                                    else
+                                        "Aucun algorithme",
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 Text(
-                                    text = if (searchQuery.isNotBlank()) "Essayez un autre mot-clé" else "Cette catégorie est vide",
+                                    text = if (searchQuery.isNotBlank())
+                                        "Essayez un autre mot-clé"
+                                    else
+                                        "Cette catégorie est vide",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -197,7 +219,10 @@ fun HomeScreen(navController: NavHostController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlgorithmCard(algorithm: Algorithm, onClick: () -> Unit) {
+fun AlgorithmCard(
+    algorithm: Algorithm,
+    onClick: () -> Unit
+) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),

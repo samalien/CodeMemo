@@ -108,7 +108,7 @@ fun AlgorithmDetailScreen(
             }
 
             TabRow(selectedTabIndex = selectedTab) {
-                listOf("Pseudo-code", "Python", "Exemple").forEachIndexed { i, t ->
+                listOf("Algorithme", "Python", "Exemple").forEachIndexed { i, t ->
                     Tab(selected = selectedTab == i, onClick = { selectedTab = i }, text = { Text(t) })
                 }
             }
