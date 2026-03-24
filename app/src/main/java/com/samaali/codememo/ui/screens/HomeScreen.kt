@@ -154,9 +154,11 @@ fun HomeScreen(navController: NavHostController) {
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
-                                    text = "$count algorithme${if (count > 1) "s" else ""}",
+                                    text = "$count Algorithme${if (count > 1) "s" else ""}",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    //color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.primary
+
                                 )
                             }
                             Icon(
@@ -207,6 +209,7 @@ fun HomeScreen(navController: NavHostController) {
                                         "Cette catégorie est vide",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
+
                                 )
                             }
                         }

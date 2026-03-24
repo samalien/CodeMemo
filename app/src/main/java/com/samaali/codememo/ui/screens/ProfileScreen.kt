@@ -1,6 +1,7 @@
 package com.samaali.codememo.ui.screens
 
 import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -36,14 +37,18 @@ fun ProfileScreen(navController: NavController) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        Log.d("AUTH_DEBUG", "Result code: ${result.resultCode}")
         if (result.resultCode == Activity.RESULT_OK && result.data != null) {
             isLoading = true
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             scope.launch {
                 AuthManager.handleSignInResult(task)
+                //Log.d("AUTH_DEBUG", "Success: $success")
                 isLoading = false
             }
-        }
+        }     else {
+        Log.d("AUTH_DEBUG", "Connexion annulée ou échouée")
+    }
     }
 
     LaunchedEffect(Unit) {
@@ -96,7 +101,7 @@ fun ProfileScreen(navController: NavController) {
             Button(
                 onClick = {
                     isLoading = true
-                    AuthManager.signOut(context)
+                    AuthManager.signOut()
                     isLoading = false
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)

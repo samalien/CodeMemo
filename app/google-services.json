@@ -12,7 +12,20 @@
           "package_name": "com.samaali.codememo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "100581009842-3b9l1s9rqe6ln6njbrbeb0vvdk5eqlcg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.samaali.codememo",
+            "certificate_hash": "1009faf7c62dcc5db49410eadae5b369e535c7a9"
+          }
+        },
+        {
+          "client_id": "100581009842-pp47eipvo9d3mnjtsmdgoa4uiu48s126.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDxMONpt26Qn0XGVengbnso1fxo1xeNBM8"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "100581009842-pp47eipvo9d3mnjtsmdgoa4uiu48s126.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

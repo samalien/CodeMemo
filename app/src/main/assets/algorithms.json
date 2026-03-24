@@ -809,113 +809,113 @@
     "exampleInput": "'1 2\\n3 4'",
     "exampleOutput": "[[1, 2], [3, 4]]"
   },
-    {
-      "id": 86,
-      "name": "Remplir Fichier Texte (Aléatoire)",
-      "category": "Fichiers",
-      "description": "Crée un fichier texte nommé 'chance.txt' et y écrit 6 nombres entiers aléatoires compris entre 2 et 9, un par ligne.",
-      "pseudocode": "Procédure remplir_chance()\nDébut\n Ouvrir(\"chance.txt\", f, \"w\")\n Pour i de 0 à 5 Faire\n x ← aléatoire(2, 9)\n Ecrire_nl(f, conv_ch(x))\n Fin Pour\n Fermer(f)\nFin",
-      "python": "from random import randint\n\ndef remplir_chance():\n f = open(\"chance.txt\", \"w\")\n for i in range(6):\n x = randint(2, 9)\n f.write(str(x) + \"\\n\")\n f.close()",
-      "exampleInput": "Appel fonction",
-      "exampleOutput": "Fichier 'chance.txt' rempli."
-    },
-    {
-      "id": 87,
-      "name": "Saisie et Sauvegarde Clients",
-      "category": "Fichiers",
-      "description": "Demande à l’utilisateur de saisir p clients (identifiant et téléphone), puis sauvegarde ces informations dans un fichier binaire 'clients.dat' à l’aide de pickle.",
-      "pseudocode": "Procédure remplir_client(p : Entier)\nDébut\n Ouvrir(\"clients.dat\", f, \"wb\")\n Pour i de 0 à p-1 Faire\n Lire(id, tel)\n e['identifiant'] ← id\n e['telephone'] ← tel\n Ecrire(f, e)\n Fin Pour\n Fermer(f)\nFin",
-      "python": "from pickle import dump\n\ndef remplir_client(p):\n f = open(\"clients.dat\", \"wb\")\n for i in range(p):\n e = dict()\n e['identifiant'] = input(\"ID client : \")\n e['telephone'] = input(\"Tel client : \")\n dump(e, f)\n f.close()",
-      "exampleInput": "p=2",
-      "exampleOutput": "Fichier 'clients.dat' créé."
-    },
-    {
-      "id": 88,
-      "name": "Somme Récursive (Réduction)",
-      "category": "Algorithmes Récursifs",
-      "description": "Réduit itérativement une chaîne représentant un nombre en additionnant ses chiffres jusqu’à obtenir un seul chiffre (réduction numérique ou somme digitale).",
-      "pseudocode": "Fonction somme(ch : Chaîne) : Chaîne\nDébut\n Tant Que long(ch) > 1 Faire\n s ← 0\n Pour i de 0 à long(ch)-1 Faire\n s ← s + valeur(ch[i])\n Fin Pour\n ch ← conv_ch(s)\n Fin Tant Que\n Retourner ch\nFin",
-      "python": "def somme(ch):\n while len(ch) > 1:\n s = 0\n for i in range(len(ch)):\n s = s + int(ch[i])\n ch = str(s)\n return ch",
-      "exampleInput": "'1234'",
-      "exampleOutput": "'1'"
-    },
-    {
-      "id": 89,
-      "name": "Recherche dans Fichier Texte",
-      "category": "Fichiers",
-      "description": "Ouvre le fichier 'chance.txt' et vérifie si une valeur donnée (sous forme de chaîne) apparaît parmi les nombres écrits dans le fichier.",
-      "pseudocode": "Fonction existe(s : Chaîne) : Booléen\nDébut\n Ouvrir(\"chance.txt\", f, \"r\")\n Trouve ← Faux\n TantQue NON Fin_fichier(f) Faire\n Lire_ligne(f, ch)\n Si valeur(ch) = valeur(s) Alors \n Trouve ← Vrai\n FinSi\n FinTantQue\n Fermer(f)\n Retourner Trouve\nFin",
-      "python": "def existe(s):\n f = open(\"chance.txt\", \"r\")\n trouve = False\n ligne = f.readline()\n while ligne != \"\":\n if int(ligne) == int(s):\n trouve = True\n ligne = f.readline()\n f.close()\n return trouve",
-      "exampleInput": "s='7'",
-      "exampleOutput": "True"
-    },
-    {
-      "id": 90,
-      "name": "Traitement Gagnants",
-      "category": "Fichiers",
-      "description": "Lit les clients sérialisés dans 'clients.dat', calcule la réduction numérique de leur numéro de téléphone, et vérifie s’il correspond à un nombre présent dans 'chance.txt' pour déterminer s’ils sont gagnants.",
-      "pseudocode": "Procédure gagnant()\nDébut\n Ouvrir(\"clients.dat\", f, \"rb\")\n eof ← Faux\n TantQue eof = Faux Faire\n Lire(f, e)\n s ← somme(e['telephone'])\n Si existe(s) Alors \n Ecrire(e['identifiant'], \" est gagnant\")\n Finsi\n Si Erreur Alors \n eof ← Vrai\n Finsi\n Fin Tant Que\n Fermer(f)\nFin",
-      "python": "from pickle import load\n\ndef gagnant():\n f = open(\"clients.dat\", \"rb\")\n eof = False\n while not eof:\n try:\n e = load(f)\n s = somme(e['telephone'])\n if existe(s):\n print(e['identifiant'] + \" est gagnant\")\n else:\n print(e['identifiant'] + \" est perdant\")\n except :\n eof = True\n f.close()",
-      "exampleInput": "Données binaires et texte",
-      "exampleOutput": "Affichage terminal."
-    },
-    {
-      "id": 91,
-      "name": "Saisie d'une Matrice",
-      "category": "Matrices",
-      "description": "Demande à l’utilisateur de saisir les éléments d’une matrice de dimensions L lignes × C colonnes, élément par élément.",
-      "pseudocode": "Procédure saisir_matrice(M: matrice, L : Entier, C : Entier)\nDébut\n Pour i de 0 à L-1 Faire\n Pour j de 0 à C-1 Faire\n Lire(M[i,j])\n Fin Pour\n Fin Pour\nFin",
-      "python": "def saisir_matrice(M, L, C):\n for i in range(L):\n for j in range(C):\n M[i,j] = int(input(\"M[\" + str(i) + \",\" + str(j) + \"] = \"))\n",
-      "exampleInput": "L=2, C=2",
-      "exampleOutput": "[[1, 2], [3, 4]]"
-    },
-    {
-      "id": 92,
-      "name": "Maximum d'une Matrice",
-      "category": "Matrices",
-      "description": "Parcourt tous les éléments d’une matrice et retourne la plus grande valeur rencontrée.",
-      "pseudocode": "Fonction max_matrice(M : Matrice, L, C : Entier) : Entier\nDébut\n maxi ← M[0,0]\n Pour i de 0 à L-1 Faire\n Pour j de 0 à C-1 Faire\n Si M[i,j] > maxi Alors \n maxi ← M[i,j]\n Fin Si\n Fin Pour\n Fin Pour\n Retourner maxi\nFin",
-      "python": "def max_matrice(M, L, C):\n maxi = M[0,0]\n for i in range(L):\n for j in range(C):\n if M[i,j] > maxi:\n maxi = M[i,j]\n return maxi",
-      "exampleInput": "[[10, 5], [20, 8]]",
-      "exampleOutput": "20"
-    },
-    {
-      "id": 93,
-      "name": "Moyenne des Éléments",
-      "category": "Matrices",
-      "description": "Calcule la moyenne arithmétique de tous les éléments d’une matrice en additionnant chaque élément et en divisant par le nombre total d’éléments.",
-      "pseudocode": "Fonction moyenne_matrice(M : Matrice, L, C : Entier) : Réel\nDébut\n somme ← 0\n Pour i de 0 à L-1 Faire\n Pour j de 0 à C-1 Faire\n somme ← somme + M[i,j]\n Fin Pour\n Fin Pour\n Retourner somme / (L * C)\nFin",
-      "python": "def moyenne_matrice(M, L, C):\n somme = 0\n for i in range(L):\n for j in range(C):\n somme = somme + M[i,j]\n moy = somme / (L * C)\n return moy",
-      "exampleInput": "[[2, 4], [6, 8]]",
-      "exampleOutput": "5.0"
-    },
-    {
-      "id": 94,
-      "name": "Matrice Identité",
-      "category": "Matrices",
-      "description": "Vérifie si une matrice carrée NxN est la matrice identité : 1 sur la diagonale principale et 0 partout ailleurs.",
-      "pseudocode": "Fonction est_identite(M : Matrice, N : Entier) : Booléen\nDébut\n valide ← Vrai\n Pour i de 0 à N-1 Faire\n Pour j de 0 à N-1 Faire\n Si (i = j) Alors\n Si M[i,j] ≠ 1 Alors \n valide ← Faux\n Sinon\n Si M[i,j] ≠ 0 Alors \n valide ← Faux\n Fin Si\n Fin Pour\n Fin Pour\n Retourner valide\nFin",
-      "python": "def est_identite(M, N):\n valide = True\n for i in range(N):\n for j in range(N):\n if i == j:\n if M[i,j] != 1:\n valide = False\n else:\n if M[i,j] != 0:\n valide = False\n return valide",
-      "exampleInput": "[[1, 0], [0, 1]]",
-      "exampleOutput": "True"
-    },
-    {
-      "id": 95,
-      "name": "Transposition de Matrice",
-      "category": "Matrices",
-      "description": "Construit la transposée d’une matrice : les lignes de la matrice originale deviennent les colonnes de la matrice résultat.",
-      "pseudocode": "Procédure transposer(M : Matrice, L, C : Entier, @T : Matrice)\nDébut\n Pour i de 0 à L-1 Faire\n Pour j de 0 à C-1 Faire\n T[j,i] ← M[i,j]\n Fin Pour\n Fin Pour\nFin",
-      "python": "import numpy as np\nT = np.zeros((C, L), dtype=int) \ndef transposer(M, T, L, C):\n for i in range(L): \n for j in range(C): \n T[j, i] = M[i, j]\n\n",
-      "exampleInput": "[[1, 2, 3], [4, 5, 6]]",
-      "exampleOutput": "[[1, 4], [2, 5], [3, 6]]"
-    },
+  {
+    "id": 86,
+    "name": "Remplir Fichier Texte (Aléatoire)",
+    "category": "Fichiers",
+    "description": "Crée un fichier texte nommé 'chance.txt' et y écrit 6 nombres entiers aléatoires compris entre 2 et 9, un par ligne.",
+    "pseudocode": "Procédure remplir_chance()\nDébut\n Ouvrir(\"chance.txt\", f, \"w\")\n Pour i de 0 à 5 Faire\n     x ← aléatoire(2, 9)\n     Ecrire_nl(f, conv_ch(x))\n Fin Pour\n Fermer(f)\nFin",
+    "python": "from random import randint\n\ndef remplir_chance():\n    f = open(\"chance.txt\", \"w\")\n    for i in range(6):\n        x = randint(2, 9)\n    f.write(str(x) + \"\\n\")\n    f.close()",
+    "exampleInput": "Appel fonction",
+    "exampleOutput": "Fichier 'chance.txt' rempli."
+  },
+  {
+    "id": 87,
+    "name": "Saisie et Sauvegarde Clients",
+    "category": "Fichiers",
+    "description": "Demande à l’utilisateur de saisir p clients (identifiant et téléphone), puis sauvegarde ces informations dans un fichier binaire 'clients.dat' à l’aide de pickle.",
+    "pseudocode": "Procédure remplir_client(p : Entier)\nDébut\n Ouvrir(\"clients.dat\", f, \"wb\")\n Pour i de 0 à p-1 Faire\n     Lire(id, tel)\n     e['identifiant'] ← id\n     e['telephone'] ← tel\n     Ecrire(f, e)\n Fin Pour\n Fermer(f)\nFin",
+    "python": "from pickle import dump\n\ndef remplir_client(p):\n    f = open(\"clients.dat\", \"wb\")\n    for i in range(p):\n        e = dict()\n        e['identifiant'] = input(\"ID client : \")\n        e['telephone'] = input(\"Tel client : \")\n        dump(e, f)\n f.close()",
+    "exampleInput": "p=2",
+    "exampleOutput": "Fichier 'clients.dat' créé."
+  },
+  {
+    "id": 88,
+    "name": "Somme Récursive (Réduction)",
+    "category": "Algorithmes Récursifs",
+    "description": "Réduit itérativement une chaîne représentant un nombre en additionnant ses chiffres jusqu’à obtenir un seul chiffre (réduction numérique ou somme digitale).",
+    "pseudocode": "Fonction somme(ch : Chaîne) : Chaîne\nDébut\n Tant Que long(ch) > 1 Faire\n     s ← 0\n     Pour i de 0 à long(ch)-1 Faire\n         s ← s + valeur(ch[i])\n     Fin Pour\n     ch ← conv_ch(s)\n Fin Tant Que\n Retourner ch\nFin",
+    "python": "def somme(ch):\n    while len(ch) > 1:\n        s = 0\n        for i in range(len(ch)):\n            s = s + int(ch[i])\n        ch = str(s)\n    return ch",
+    "exampleInput": "'1234'",
+    "exampleOutput": "'1'"
+  },
+  {
+    "id": 89,
+    "name": "Recherche dans Fichier Texte",
+    "category": "Fichiers",
+    "description": "Ouvre le fichier 'chance.txt' et vérifie si une valeur donnée (sous forme de chaîne) apparaît parmi les nombres écrits dans le fichier.",
+    "pseudocode": "Fonction existe(s : Chaîne) : Booléen\nDébut\n Ouvrir(\"chance.txt\", f, \"r\")\n Trouve ← Faux\n TantQue NON Fin_fichier(f) Faire\n     Lire_ligne(f, ch)\n     Si valeur(ch) = valeur(s) Alors \n         Trouve ← Vrai\n     FinSi\n FinTantQue\n Fermer(f)\n Retourner Trouve\nFin",
+    "python": "def existe(s):\n    f = open(\"chance.txt\", \"r\")\n    trouve = False\n    ligne = f.readline()\n    while ligne != \"\":\n        if int(ligne) == int(s):\n            trouve = True\n        ligne = f.readline()\n    f.close()\n    return trouve",
+    "exampleInput": "s='7'",
+    "exampleOutput": "True"
+  },
+  {
+    "id": 90,
+    "name": "Traitement Gagnants",
+    "category": "Fichiers",
+    "description": "Lit les clients sérialisés dans 'clients.dat', calcule la réduction numérique de leur numéro de téléphone, et vérifie s’il correspond à un nombre présent dans 'chance.txt' pour déterminer s’ils sont gagnants.",
+    "pseudocode": "Procédure gagnant()\nDébut\n Ouvrir(\"clients.dat\", f, \"rb\")\n eof ← Faux\n TantQue eof = Faux Faire\n     Lire(f, e)\n     s ← somme(e['telephone'])\n     Si existe(s) Alors \n         Ecrire(e['identifiant'], \" est gagnant\")\n     Finsi\n     Si Erreur Alors \n         eof ← Vrai\n     Finsi\n Fin Tant Que\n Fermer(f)\nFin",
+    "python": "from pickle import load\n\ndef gagnant():\n f = open(\"clients.dat\", \"rb\")\n eof = False\n while not eof:\n     try:\n         e = load(f)\n         s = somme(e['telephone'])\n         if existe(s):\n             print(e['identifiant'] + \" est gagnant\")\n         else:\n             print(e['identifiant'] + \" est perdant\")\n     except :\n     eof = True\n f.close()",
+    "exampleInput": "Données binaires et texte",
+    "exampleOutput": "Affichage terminal."
+  },
+  {
+    "id": 91,
+    "name": "Saisie d'une Matrice",
+    "category": "Matrices",
+    "description": "Demande à l’utilisateur de saisir les éléments d’une matrice de dimensions L lignes × C colonnes, élément par élément.",
+    "pseudocode": "Procédure saisir_matrice(M: matrice, L : Entier, C : Entier)\nDébut\n    Pour i de 0 à L-1 Faire\n        Pour j de 0 à C-1 Faire\n            Lire(M[i,j])\n        Fin Pour\n    Fin Pour\nFin",
+    "python": "def saisir_matrice(M, L, C):\n    for i in range(L):\n        for j in range(C):\n            M[i][j] = int(input(f\"M[{i},{j}] = \"))\n    return M",
+    "exampleInput": "L=2, C=2",
+    "exampleOutput": "[[1, 2], [3, 4]]"
+  },
+  {
+    "id": 92,
+    "name": "Maximum d'une Matrice",
+    "category": "Matrices",
+    "description": "Parcourt tous les éléments d’une matrice et retourne la plus grande valeur rencontrée.",
+    "pseudocode": "Fonction max_matrice(M : Matrice, L, C : Entier) : Entier\nDébut\n    maxi ← M[0,0]\n    Pour i de 0 à L-1 Faire\n        Pour j de 0 à C-1 Faire\n            Si M[i,j] > maxi Alors\n                maxi ← M[i,j]\n            Fin Si\n        Fin Pour\n    Fin Pour\n    Retourner maxi\nFin",
+    "python": "def max_matrice(M, L, C):\n    maxi = M[0][0]\n    for i in range(L):\n        for j in range(C):\n            if M[i][j] > maxi:\n                maxi = M[i][j]\n    return maxi",
+    "exampleInput": "[[10, 5], [20, 8]]",
+    "exampleOutput": "20"
+  },
+  {
+    "id": 93,
+    "name": "Moyenne des Éléments",
+    "category": "Matrices",
+    "description": "Calcule la moyenne arithmétique de tous les éléments d’une matrice en additionnant chaque élément et en divisant par le nombre total d’éléments.",
+    "pseudocode": "Fonction moyenne_matrice(M : Matrice, L, C : Entier) : Réel\nDébut\n    somme ← 0\n    Pour i de 0 à L-1 Faire\n        Pour j de 0 à C-1 Faire\n            somme ← somme + M[i,j]\n        Fin Pour\n    Fin Pour\n    Retourner somme / (L * C)\nFin",
+    "python": "def moyenne_matrice(M, L, C):\n    somme = 0\n    for i in range(L):\n        for j in range(C):\n            somme += M[i][j]\n    moy = somme / (L * C)\n    return moy",
+    "exampleInput": "[[2, 4], [6, 8]]",
+    "exampleOutput": "5.0"
+  },
+  {
+    "id": 94,
+    "name": "Matrice Identité",
+    "category": "Matrices",
+    "description": "Vérifie si une matrice carrée NxN est la matrice identité : 1 sur la diagonale principale et 0 partout ailleurs.",
+    "pseudocode": "Fonction est_identite(M : Matrice, N : Entier) : Booléen\nDébut\n    valide ← Vrai\n    Pour i de 0 à N-1 Faire\n        Pour j de 0 à N-1 Faire\n            Si (i = j) Alors\n                Si M[i,j] ≠ 1 Alors\n                    valide ← Faux\n            Sinon\n                Si M[i,j] ≠ 0 Alors\n                    valide ← Faux\n            Fin Si\n        Fin Pour\n    Fin Pour\n    Retourner valide\nFin",
+    "python": "def est_identite(M, N):\n    valide = True\n    for i in range(N):\n        for j in range(N):\n            if i == j:\n                if M[i][j] != 1:\n                    valide = False\n            else:\n                if M[i][j] != 0:\n                    valide = False\n    return valide",
+    "exampleInput": "[[1, 0], [0, 1]]",
+    "exampleOutput": "True"
+  },
+  {
+    "id": 95,
+    "name": "Transposition de Matrice",
+    "category": "Matrices",
+    "description": "Construit la transposée d’une matrice : les lignes de la matrice originale deviennent les colonnes de la matrice résultat.",
+    "pseudocode": "Procédure transposer(M : Matrice, L, C : Entier, T : Matrice)\nDébut\n    Pour i de 0 à L-1 Faire\n        Pour j de 0 à C-1 Faire\n            T[j,i] ← M[i,j]\n        Fin Pour\n    Fin Pour\nFin",
+    "python": "def transposer(M, L, C):\n    T = [[0 for _ in range(L)] for _ in range(C)]\n    for i in range(L):\n        for j in range(C):\n            T[j][i] = M[i][j]\n    return T",
+    "exampleInput": "[[1, 2, 3], [4, 5, 6]]",
+    "exampleOutput": "[[1, 4], [2, 5], [3, 6]]"
+  },
   {
     "id": 96,
     "name": "Factorielle Récursive",
     "category": "Algorithmes Récursifs",
     "description": "Calcule la factorielle d’un entier positif n de manière récursive (n! = n × (n-1)!).",
-    "pseudocode": "Fonction factorielle(n : Entier) : Entier\nDébut\n Si n = 0 Alors\n Retourner 1\n Sinon\n Retourner n * factorielle(n-1)\n Fin Si\nFin",
-    "python": "def factorielle(n):\n if n == 0:\n return 1\n else:\n return n * factorielle(n-1)",
+    "pseudocode": "Fonction factorielle(n : Entier) : Entier\nDébut\n Si n = 0 Alors\n     Retourner 1\n Sinon\n     Retourner n * factorielle(n-1)\n Fin Si\nFin",
+    "python": "def factorielle(n):\n    if n == 0:\n        return 1\n    else:\n        return n * factorielle(n-1)",
     "exampleInput": "n=5",
     "exampleOutput": "120"
   },
@@ -924,8 +924,8 @@
     "name": "Suite de Fibonacci Récursive",
     "category": "Algorithmes Récursifs",
     "description": "Calcule le n-ième terme de la suite de Fibonacci de manière récursive (F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)).",
-    "pseudocode": "Fonction fibonacci(n : Entier) : Entier\nDébut\n Si n <= 1 Alors\n Retourner n\n Sinon\n Retourner fibonacci(n-1) + fibonacci(n-2)\n Fin Si\nFin",
-    "python": "def fibonacci(n):\n if n <= 1:\n return n\n else:\n return fibonacci(n-1) + fibonacci(n-2)",
+    "pseudocode": "Fonction fibonacci(n : Entier) : Entier\nDébut\n Si n <= 1 Alors\n     Retourner n\n Sinon\n     Retourner fibonacci(n-1) + fibonacci(n-2)\n Fin Si\nFin",
+    "python": "def fibonacci(n):\n    if n <= 1:\n        return n\n    else:\n        return fibonacci(n-1) + fibonacci(n-2)",
     "exampleInput": "n=8",
     "exampleOutput": "21"
   },
@@ -934,8 +934,8 @@
     "name": "Puissance Récursive",
     "category": "Algorithmes Récursifs",
     "description": "Calcule la puissance xⁿ d’un nombre réel x et d’un entier positif n de manière récursive.",
-    "pseudocode": "Fonction puissance(x : Réel, n : Entier) : Réel\nDébut\n Si n = 0 Alors\n Retourner 1\n Sinon\n Retourner x * puissance(x, n-1)\n Fin Si\nFin",
-    "python": "def puissance(x, n):\n if n == 0:\n return 1\n else:\n return x * puissance(x, n-1)",
+    "pseudocode": "Fonction puissance(x : Réel, n : Entier) : Réel\nDébut\n Si n = 0 Alors\n     Retourner 1\n Sinon\n     Retourner x * puissance(x, n-1)\n Fin Si\nFin",
+    "python": "def puissance(x, n):\n    if n == 0:\n        return 1\n    else:\n        return x * puissance(x, n-1)",
     "exampleInput": "x=2, n=10",
     "exampleOutput": "1024.0"
   },
@@ -944,8 +944,8 @@
     "name": "PGCD Récursif (Euclide)",
     "category": "Algorithmes Récursifs",
     "description": "Calcule le plus grand commun diviseur (PGCD) de deux entiers positifs à l’aide de l’algorithme d’Euclide récursif.",
-    "pseudocode": "Fonction pgcd(a : Entier, b : Entier) : Entier\nDébut\n Si b = 0 Alors\n Retourner a\n Sinon\n Retourner pgcd(b, a mod b)\n Fin Si\nFin",
-    "python": "def pgcd(a, b):\n if b == 0:\n return a\n else:\n return pgcd(b, a % b)",
+    "pseudocode": "Fonction pgcd(a : Entier, b : Entier) : Entier\nDébut\n Si b = 0 Alors\n     Retourner a\n Sinon\n     Retourner pgcd(b, a mod b)\n Fin Si\nFin",
+    "python": "def pgcd(a, b):\n    if b == 0:\n        return a\n    else:\n        return pgcd(b, a % b)",
     "exampleInput": "a=48, b=18",
     "exampleOutput": "6"
   },
@@ -954,8 +954,8 @@
     "name": "Longueur Chaîne Récursive",
     "category": "Algorithmes Récursifs",
     "description": "Calcule la longueur d’une chaîne de caractères de manière récursive sans utiliser len().",
-    "pseudocode": "Fonction longueur(ch : Chaîne) : Entier\nDébut\n Si ch = \"\" Alors\n Retourner 0\n Sinon\n Retourner 1 + longueur(ch[1:])\n Fin Si\nFin",
-    "python": "def longueur(ch):\n if ch == \"\":\n return 0\n else:\n return 1 + longueur(ch[1:])",
+    "pseudocode": "Fonction longueur(ch : Chaîne) : Entier\nDébut\n Si ch = \"\" Alors\n     Retourner 0\n Sinon\n     Retourner 1 + longueur(ch[1:])\n Fin Si\nFin",
+    "python": "def longueur(ch):\n    if ch == \"\":\n        return 0\n    else:\n        return 1 + longueur(ch[1:])",
     "exampleInput": "'récursif'",
     "exampleOutput": "9"
   },
@@ -964,8 +964,8 @@
     "name": "Inversion Chaîne Récursive",
     "category": "Algorithmes Récursifs",
     "description": "Retourne l’inverse d’une chaîne de caractères de manière récursive.",
-    "pseudocode": "Fonction inverse(ch : Chaîne) : Chaîne\nDébut\n Si ch = \"\" Alors\n Retourner \"\"\n Sinon\n Retourner inverse(ch[1:]) + ch[0]\n Fin Si\nFin",
-    "python": "def inverse(ch):\n if ch == \"\":\n return \"\"\n else:\n return inverse(ch[1:]) + ch[0]",
+    "pseudocode": "Fonction inverse(ch : Chaîne) : Chaîne\nDébut\n Si ch = \"\" Alors\n     Retourner \"\"\n Sinon\n     Retourner inverse(ch[1:]) + ch[0]\n Fin Si\nFin",
+    "python": "def inverse(ch):\n    if ch == \"\":\n        return \"\"\n    else:\n        return inverse(ch[1:]) + ch[0]",
     "exampleInput": "'kayak'",
     "exampleOutput": "'kayak'"
   },
@@ -974,8 +974,8 @@
     "name": "Somme Liste Récursive",
     "category": "Algorithmes Récursifs",
     "description": "Calcule la somme des éléments d’une liste d’entiers de manière récursive sans utiliser sum().",
-    "pseudocode": "Fonction somme_liste(L : Liste) : Entier\nDébut\n Si L est vide Alors\n Retourner 0\n Sinon\n Retourner L[0] + somme_liste(L[1:])\n Fin Si\nFin",
-    "python": "def somme_liste(L):\n if not L:\n return 0\n else:\n return L[0] + somme_liste(L[1:])",
+    "pseudocode": "Fonction somme_liste(L : Liste) : Entier\nDébut\n Si L est vide Alors\n     Retourner 0\n Sinon\n     Retourner L[0] + somme_liste(L[1:])\n Fin Si\nFin",
+    "python": "def somme_liste(L):\n    if not L:\n        return 0\n    else:\n        return L[0] + somme_liste(L[1:])",
     "exampleInput": "[3, 7, 2, 9]",
     "exampleOutput": "21"
   },
@@ -984,9 +984,79 @@
     "name": "Recherche Binaire Récursive",
     "category": "Algorithmes Récursifs",
     "description": "Recherche un élément dans une liste triée par dichotomie (recherche binaire) de manière récursive.",
-    "pseudocode": "Fonction recherche_binaire(T : Tableau trié, val : Entier, g : Entier, d : Entier) : Booléen\nDébut\n Si g > d Alors Retourner Faux\n m ← (g + d) // 2\n Si T[m] = val Alors Retourner Vrai\n Si T[m] > val Alors Retourner recherche_binaire(T, val, g, m-1)\n Sinon Retourner recherche_binaire(T, val, m+1, d)\n Fin Si\nFin",
-    "python": "def recherche_binaire(T, val, g, d):\n if g > d:\n return False\n m = (g + d) // 2\n if T[m] == val:\n return True\n elif T[m] > val:\n return recherche_binaire(T, val, g, m-1)\n else:\n return recherche_binaire(T, val, m+1, d)",
+    "pseudocode": "Fonction recherche_binaire(T : Tableau trié, val : Entier, g : Entier, d : Entier) : Booléen\nDébut\n Si g > d Alors \n    Retourner Faux\n Fin Si\n m ← (g + d) // 2\n Si T[m] = val Alors \n    Retourner Vrai\n Sinon Si T[m] > val Alors \n     Retourner recherche_binaire(T, val, g, m-1)\n Sinon \n     Retourner recherche_binaire(T, val, m+1, d)\n Fin Si\nFin",
+    "python": "def recherche_binaire(T, val, g, d):\n    if g > d:\n        return False\n    m = (g + d) // 2\n    if T[m] == val:\n        return True\n    elif T[m] > val:\n        return recherche_binaire(T, val, g, m-1)\n    else:\n        return recherche_binaire(T, val, m+1, d)",
     "exampleInput": "T=[1,3,5,7,9], val=5, g=0, d=4",
     "exampleOutput": "True"
+  },
+  {
+    "id": 104,
+    "name": "Saisie Entier Dans Intervalle",
+    "category": "Saisie",
+    "description": "Demande à l'utilisateur de saisir un entier compris entre deux bornes (incluses). Contrôle à la fois la validité de l'entier et son appartenance à l'intervalle.",
+    "pseudocode": "Procédure saisir_entier_intervalle(message : Chaîne, min_val : Entier, max_val : Entier, @N: Entier) \nDébut\n    Répéter\n        Ecrire(message + \" [\" + min_val + \"..\" + max_val + \"] : \")\n        Lire(N)\n    Jusqu'à min_val ≤ N ≤ max_val\nFin",
+    "python": "def saisir_entier_intervalle(message, min_val, max_val):\n    N= int(input(message))\n    while not(min_val <= N <= max_val):\n        N= int(input(message))\n    return N",
+    "exampleInput": "message=\"Entrez un indice\", min_val=0, max_val=5 → saisies : \"-2\" puis \"10\" puis \"3\"",
+    "exampleOutput": "3"
+  },
+  {
+    "id": 105,
+    "name": "Saisie Entier Positif",
+    "category": "Saisie",
+    "description": "Demande à l'utilisateur de saisir un entier strictement positif (> 0). Contrôle la validité et la positivité.",
+    "pseudocode": "Procédure saisir_entier_positif(@N: Entier) \nDébut\n    Répéter\n        Ecrire(\"Donner un entier positif\")\n        Lire(N)\n    Jusqu'à min_val ≤ N ≤ max_val\nFin",
+    "python": "def saisir_entier_intervalle():\n    N= int(input(\"Donner un entier positif\"))\n    while  N <= 0:\n        N= int(input(\"Donner un entier positif\"))\n    return N",
+    "exampleInput": "Saisies utilisateur : \"-5\" puis \"0\" puis \"abc\" puis \"8\"",
+    "exampleOutput": "8"
+  },
+  {
+    "id": 106,
+    "name": "Saisie Chaîne Non Vide",
+    "category": "Saisie",
+    "description": "Demande à l'utilisateur de saisir une chaîne de caractères non vide (après suppression des espaces aux extrémités).",
+    "pseudocode": "Procédure saisir_chaine_non_vide(@message : Chaîne) \nDébut\n    Répéter\n        Ecrire(\"Donner une chaine non vide\")\n        Lire(message )\n    Jusqu'à message ≠ \"\"\nFin",
+    "python": "def saisir_chaine_non_vide() :\n    message=input(\"donner une chaine non vide\")\n    while message != \"\":\n        message=input(\"donner une chaine non vide\")\n    return message",
+    "exampleInput": "Saisies utilisateur : \"\" puis \"   \" puis \"bonjour\"",
+    "exampleOutput": "bonjour"
+  },
+  {
+    "id": 107,
+    "name": "Saisie Entier Pair",
+    "category": "Saisie",
+    "description": "Demande à l'utilisateur de saisir un entier pair (divisible par 2). Contrôle la validité et la parité.",
+    "pseudocode": "Procédure saisir_entier_pair(@N: Entier) \nDébut\n    Répéter\n        Ecrire(\"Donner un entier pair\")\n        Lire(N)\n    Jusqu'à N mod 2 =0\nFin",
+    "python": "def saisir_entier_pair():\n    N= int(input(\"Donner un entier pair\"))\n    while  N % 2 != 0:\n        N= int(input(\"Donner un entier pair\"))\n    return N",
+    "exampleInput": "Saisies utilisateur : \"5\" puis \"abc\" puis \"8\"",
+    "exampleOutput": "8"
+  },
+  {
+    "id": 108,
+    "name": "Saisie Entier Divisible par 3",
+    "category": "Saisie",
+    "description": "Demande à l'utilisateur de saisir un entier divisible par 3. Contrôle la validité et la divisibilité par 3.",
+    "pseudocode": "Procédure saisir_entier_divisible_3(@N: Entier) \nDébut\n    Répéter\n        Ecrire(\"Donner un entier divisible par 3\")\n        Lire(N)\n    Jusqu'à N mod 3 ==0\nFin",
+    "python": "def saisir_entier_divisible_3():\n    N= int(input(\"Donner un entier divisible par 3\"))\n    while  N % 3 != 0:\n        N= int(input(\"Donner un entier divisible par 3\"))\n    return N",
+    "exampleInput": "Saisies utilisateur : \"7\" puis \"9\"",
+    "exampleOutput": "9"
+  },
+  {
+    "id": 109,
+    "name": "Saisie Chaîne Majuscules Uniquement",
+    "category": "Saisie",
+    "description": "Vérifier si une chaine est composée uniquement par par des lettres Majuscules (A-Z), sans espaces ni autres caractères.",
+    "pseudocode": "Fonction saisie_Majuscule(m:chaine):Booléen\nDébut\n    i ← 0\n    Tant que \"A\" ≤ m[i]≤ \"Z\" et i< long(m)-1 Faire\n        i ← i+1\n    Fin Tant que\n    retourer(\"A\" ≤ m[i]≤ \"Z\")\nFin\n",
+    "python": "def saisie_Majuscule(m):\n    i = 0\n    while \"A\" <= m[i]<=\"Z\" and i< len(m)-1 :\n        i = i+1\n    return(\"A\" <= m[i]<= \"Z\")\n\n",
+    "exampleInput": "Saisies utilisateur : \"Bonjour\" puis \"ABC123\" puis \"HELLO\"",
+    "exampleOutput": "HELLO"
+  },
+  {
+    "id": 110,
+    "name": "Saisie Chaîne Minuscules Uniquement",
+    "category": "Saisie",
+    "description": "Vérifier si une chaine est composée uniquement par par des lettres minuscules (a-z), sans espaces ni autres caractères.",
+    "pseudocode": "Fonction saisie_Miniscule(m:chaine):Booléen\nDébut\n    i ← 0\n    Tant que \"a\" ≤ m[i]≤ \"z\" et i< long(m)-1 Faire\n        i ← i+1\n    Fin Tant que\n    retourer(\"a\" ≤ m[i]≤ \"z\")\nFin\n",
+    "python": "def saisie_Miniscule(m):\n    i = 0\n    while \"a\" <= m[i]<=\"z\" and i< len(m)-1 :\n        i = i+1\n    return(\"a\" <= m[i]<= \"z\")",
+    "exampleInput": "Saisies utilisateur : \"Bonjour\" puis \"hello123\" puis \"python\"",
+    "exampleOutput": "python"
   }
-  ]
+]

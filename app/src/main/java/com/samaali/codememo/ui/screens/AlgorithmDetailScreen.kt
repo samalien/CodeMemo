@@ -184,7 +184,7 @@ fun CodeBlock(code: String, isPython: Boolean) {
                         "TANT QUE", "Tant que", "WHILE", "FIN TANT QUE", "Fin Tant Que", "END WHILE",
                         "RETOURNER", "Retourner", "RETURN",
                         "DEBUT", "Début", "BEGIN", "FIN", "Fin", "END",
-                        "VARIABLES", "Variables", "CONSTANTES", "Constantes"
+                        "VARIABLES", "Variables", "CONSTANTES", "Constantes", "FinSi", "FinPour", "FinTantQue"
                     )
                     pseudoKeywords.forEach { keyword ->
                         var start = code.indexOf(keyword, ignoreCase = true)
