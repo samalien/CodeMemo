@@ -10,7 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.samaali.codememo.ui.screen.PythonExecutionScreen
+import com.samaali.codememo.ui.screens.PythonExecutionScreen
 import com.samaali.codememo.ui.screens.AlgorithmDetailScreen
 import com.samaali.codememo.ui.screens.FavoritesScreen
 import com.samaali.codememo.ui.screens.HomeScreen

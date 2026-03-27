@@ -1,10 +1,11 @@
-package com.samaali.codememo.ui.screen
+package com.samaali.codememo.ui.screens
 
 import android.graphics.Color as AndroidColor
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.widget.TextView
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -37,6 +38,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
+private const val TAG = "JDoodleDebug"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PythonExecutionScreen(
@@ -52,8 +55,12 @@ fun PythonExecutionScreen(
     var isExecuting by remember { mutableStateOf(false) }
     var output by remember { mutableStateOf("Prêt pour l'exécution...") }
     var userInstructions by remember { mutableStateOf("") }
-    var codeToExecute by remember { mutableStateOf<String>("") } // Chaîne vide = pas encore chargé
+    var codeToExecute by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(true) }
+
+    // ================== CLÉS JDOODLE ==================
+    val CLIENT_ID = "15dcb68d04b24c7f9adb9827ed508de"
+    val CLIENT_SECRET = "4f58d4dc94020285dcb4379b6dae5e99761a459d51479552dfa4f79b6299c567"
 
     LaunchedEffect(algorithmId, userExerciseId) {
         scope.launch {
@@ -118,10 +125,10 @@ fun PythonExecutionScreen(
                 OutlinedTextField(
                     value = userInstructions,
                     onValueChange = { userInstructions = it },
-                    label = { Text("Appel de la fonction pour test") },
+                    label = { Text("Entrées (stdin)") },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                    placeholder = { Text("Ex: 5\n10\npour input() multiples") }
+                    placeholder = { Text("Ex: valeur pour input()") }
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -140,7 +147,7 @@ fun PythonExecutionScreen(
                             .verticalScroll(rememberScrollState()),
                         style = TextStyle(
                             fontFamily = FontFamily.Monospace,
-                            color = if (output.contains("Erreur", ignoreCase = true)) Color.Red else Color.Green,
+                            color = if (output.contains("Error") || output.contains("Erreur")) Color.Red else Color.Green,
                             fontSize = 14.sp
                         )
                     )
@@ -151,9 +158,22 @@ fun PythonExecutionScreen(
                 onClick = {
                     if (!isExecuting && codeToExecute.isNotBlank()) {
                         isExecuting = true
-                        output = "Exécution en cours..."
+                        output = "Exécution en cours...\n"
+
                         scope.launch {
-                            output = executePythonRemote("$codeToExecute\n$userInstructions")
+                            val (result, credit) = executePythonJDoodle(
+                                code = codeToExecute,
+                                userInput = userInstructions,
+                                clientId = CLIENT_ID,
+                                clientSecret = CLIENT_SECRET
+                            )
+
+                            output = result
+
+                            if (credit >= 0) {
+                                output += "\n\n────────────────────\n"
+                                output += "Crédit restant : $credit"
+                            }
                             isExecuting = false
                         }
                     }
@@ -171,6 +191,97 @@ fun PythonExecutionScreen(
     }
 }
 
+// ====================== FONCTION JDOODLE (Version Corrigée) ======================
+
+suspend fun executePythonJDoodle(
+    code: String,
+    userInput: String = "",
+    clientId: String,
+    clientSecret: String
+): Pair<String, Int> {
+
+    return withContext(Dispatchers.IO) {
+        val client = OkHttpClient()
+
+        // NE PAS utiliser trimIndent() - garder l'indentation originale
+        // Si le code est une fonction sans appel, on peut ajouter un appel de test
+        var finalCode = code
+
+        // Option: Détecter si c'est une fonction et ajouter un exemple d'appel
+        if (code.contains("def ") && !code.contains("if __name__") && !code.contains("print(")) {
+            // C'est probablement une fonction sans appel
+            // On peut ajouter un appel de test si userInput contient des paramètres
+            if (userInput.isNotBlank()) {
+                // Si l'utilisateur a fourni des paramètres, on les utilise
+                finalCode += "\n\n# Test avec les paramètres fournis\n"
+                finalCode += "print($userInput)"
+            } else {
+                // Sinon, on ajoute un message
+                finalCode += "\n\n# Fonction définie mais non appelée\n"
+                finalCode += "# Pour exécuter, ajoutez un appel comme: print(est_premier(7))"
+            }
+        }
+
+        val jsonBody = JSONObject().apply {
+            put("script", finalCode)
+            put("language", "python3")
+            put("versionIndex", "4")
+            put("stdin", userInput)  // userInput c'est pour input() dans le code Python
+            put("clientId", clientId)
+            put("clientSecret", clientSecret)
+        }
+
+        Log.d(TAG, "Code final exécuté: $finalCode")
+        Log.d(TAG, "stdin fourni: $userInput")
+
+        val request = Request.Builder()
+            .url("https://api.jdoodle.com/v1/execute")
+            .post(jsonBody.toString().toRequestBody("application/json".toMediaType()))
+            .build()
+
+        try {
+            client.newCall(request).execute().use { response ->
+                val body = response.body?.string() ?: ""
+                Log.d(TAG, "Réponse brute: $body")
+
+                if (!response.isSuccessful) {
+                    return@withContext Pair("Erreur serveur (${response.code}): $body", -1)
+                }
+
+                val jsonResponse = JSONObject(body)
+                val output = jsonResponse.optString("output", "")
+                val error = jsonResponse.optString("error", "")
+                val statusCode = jsonResponse.optInt("statusCode", 0)
+
+                // Construire le résultat
+                val resultText = when {
+                    error.isNotBlank() && error != "null" -> "Erreur d'exécution:\n$error"
+                    output.isNotBlank() -> output
+                    else -> {
+                        if (finalCode.contains("def ") && !finalCode.contains("print(")) {
+                            "⚠️ Le code contient une fonction mais elle n'est pas appelée.\n\n" +
+                                    "Pour exécuter la fonction, vous pouvez :\n" +
+                                    "1. Modifier le code pour ajouter un appel\n" +
+                                    "2. Utiliser le champ 'Entrées (stdin)' pour passer des paramètres\n\n" +
+                                    "Exemple d'appel : print(est_premier(7))"
+                        } else {
+                            "Exécution terminée (aucune sortie)"
+                        }
+                    }
+                }
+
+                val credit = jsonResponse.optInt("creditRemaining", -1)
+                Pair(resultText, credit)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Erreur réseau", e)
+            Pair("Erreur réseau : ${e.message}", -1)
+        }
+    }
+}
+
+
+// ====================== PythonCodeView ======================
 @Composable
 fun PythonCodeView(code: String) {
     AndroidView(
@@ -184,73 +295,30 @@ fun PythonCodeView(code: String) {
             }
         },
         update = { view ->
-            // ← C'EST ICI QUE LA COLORATION EST APPLIQUÉE À CHAQUE CHANGEMENT
             val spannable = SpannableString(code.ifEmpty { "# Aucun code à exécuter" })
-
-            // Mots-clés Python
-            val keywords = listOf(
-                "def", "class", "return", "if", "else", "elif", "for", "while", "in",
-                "import", "from", "as", "try", "except", "finally", "with",
-                "True", "False", "None", "and", "or", "not", "pass", "break",
-                "continue", "lambda", "yield", "assert", "raise", "global", "nonlocal"
-            )
+            val keywords = listOf("def", "class", "return", "if", "else", "elif", "for", "while", "in", "import", "from", "as", "try", "except", "finally", "with", "True", "False", "None", "and", "or", "not", "pass", "break", "continue", "print", "input")
 
             keywords.forEach { kw ->
                 var start = code.indexOf(kw)
                 while (start != -1) {
                     val end = start + kw.length
-                    if ((start == 0 || !code[start - 1].isLetterOrDigit()) &&
-                        (end == code.length || !code[end].isLetterOrDigit())
-                    ) {
+                    if ((start == 0 || !code[start - 1].isLetterOrDigit()) && (end == code.length || !code[end].isLetterOrDigit())) {
                         spannable.setSpan(ForegroundColorSpan(AndroidColor.parseColor("#d656ad")), start, end, 0)
                     }
                     start = code.indexOf(kw, start + 1)
                 }
             }
 
-            // Chaînes
             Regex("""(".*?")|('.*?')""").findAll(code).forEach {
                 spannable.setSpan(ForegroundColorSpan(AndroidColor.parseColor("#CE9178")), it.range.first, it.range.last + 1, 0)
             }
 
-            // Commentaires
             Regex("#.*").findAll(code).forEach {
                 spannable.setSpan(ForegroundColorSpan(AndroidColor.parseColor("#57A64A")), it.range.first, it.range.last + 1, 0)
             }
 
             view.text = spannable
         },
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
     )
-}
-
-// Fonction d'exécution (inchangée, juste un petit message plus clair)
-suspend fun executePythonRemote(code: String): String {
-    return withContext(Dispatchers.IO) {
-        val client = OkHttpClient()
-        val json = JSONObject().apply {
-            put("language", "python")
-            put("version", "3.10.0")
-            put("files", org.json.JSONArray().put(JSONObject().apply { put("content", code) }))
-        }
-        val request = Request.Builder()
-            .url("https://emkc.org/api/v2/piston/execute")   // ← Alternative plus stable
-            .post(json.toString().toRequestBody("application/json".toMediaType()))
-            .build()
-
-        try {
-            client.newCall(request).execute().use { response ->
-                val data = response.body?.string()
-                if (response.isSuccessful && data != null) {
-                    val run = JSONObject(data).getJSONObject("run")
-                    val err = run.getString("stderr")
-                    if (err.isNotEmpty()) "Erreur :\n$err" else run.getString("stdout").ifEmpty { "Exécution réussie (aucune sortie)" }
-                } else "Erreur serveur"
-            }
-        } catch (e: Exception) {
-            "Erreur réseau : ${e.message}"
-        }
-    }
 }
