@@ -178,10 +178,12 @@ fun CodeBlock(code: String, isPython: Boolean) {
                 } else {
                     val pseudoKeywords = listOf(
                         "Procédure", "Procedure", "Fonction", "Function",
-                        "POUR", "Pour", "FOR", "Fin Pour", "FIN POUR", "End For",
+                        "POUR", "Pour", "FOR", "Fin Pour", "FIN POUR", "End For","FAIRE","Faire",
                         "SI", "Si", "IF", "ALORS", "Alors", "THEN", "SINON", "Sinon", "ELSE",
                         "FIN SI", "Fin Si", "END IF",
+                        "répéter","Répéter","REPETER","Jusqu'à","JUSQU'A",
                         "TANT QUE", "Tant que", "WHILE", "FIN TANT QUE", "Fin Tant Que", "END WHILE",
+                        "Fin TantQue","Fin Tant Que",
                         "RETOURNER", "Retourner", "RETURN",
                         "DEBUT", "Début", "BEGIN", "FIN", "Fin", "END",
                         "VARIABLES", "Variables", "CONSTANTES", "Constantes", "FinSi", "FinPour", "FinTantQue"

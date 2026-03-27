@@ -272,7 +272,7 @@
   {
     "id": 28,
     "name": "Distance de Levenshtein",
-    "category": "Programmation Dynamique et Optimisation",
+    "category": "Programmation Dynamique",
     "description": "Calcule le nombre minimum d’opérations élémentaires (insertion, suppression, substitution d’un caractère) nécessaires pour transformer une chaîne en une autre.",
     "pseudocode": "Fonction levenshtein(a : Chaîne, b : Chaîne): Entier\nDébut\n    m ← long(a)\n    n ← long(b)\n    Pour i de 0 à m Faire\n       Pour j de 0 à n Faire\n          dp[i,j] ← 0\n       Fin Pour\n    Fin Pour\n    Pour i de 0 à m Faire \n        dp[i,0] ← i \n    Fin Pour\n    Pour j de 0 à n Faire\n        dp[0,j] ← j \n    Fin Pour\n    Pour i de 1 à m Faire\n        Pour j de 1 à n Faire\n            si a[i-1]=b[j-1] Alors\n              cost ← 0 \n            sinon \n              cost ← 1\n            dp[i,j] ← min(dp[i-1,j]+1, dp[i,j-1]+1, dp[i-1,j-1]+cost)\n        Fin Pour\n    Fin Pour\n    Retourner dp[m,n]\nFin",
     "python": "import numpy as np\ndef levenshtein(a, b):\n    m = len(a)\n    n = len(b)\n    dp = np.empty((m+1, n+1), dtype=int)\n    for i in range(m+1):\n        for j in range(n+1):\n            dp[i, j] = 0\n    for i in range(m+1):\n        dp[i, 0] = i\n    for j in range(n+1):\n        dp[0, j] = j\n    for i in range(1, m+1):\n        for j in range(1, n+1):\n            if a[i-1] == b[j-1]:\n                cost = 0\n            else:\n                cost = 1\n            dp[i, j] = min(dp[i-1, j] + 1,dp[i, j-1] + 1,dp[i-1, j-1] + cost)\n  \n    return dp[m, n]",
@@ -282,7 +282,7 @@
   {
     "id": 29,
     "name": "Sac à dos 0/1",
-    "category": "Programmation Dynamique et Optimisation",
+    "category": "Programmation Dynamique",
     "description": "Résout le problème du sac à dos 0/1 : maximiser la valeur totale des objets emportés sans dépasser la capacité W du sac (chaque objet peut être pris ou non).",
     "pseudocode": "Fonction sac_a_dos(poids : Tab, valeurs : Tab, n : Entier, W : Entier) : Entier\nDébut\n\n    Pour w de 0 à W Faire\n        dp[w] ← 0\n    Fin Pour\n\n    Pour i de 0 à n-1 Faire\n        Pour w de W à poids[i] Faire\n            dp[w] ← max(dp[w], dp[w - poids[i]] + valeurs[i])\n        Fin Pour\n    Fin Pour\n\n    Retourner dp[W]\nFin",
     "python": "import numpy as np\n\ndef sac_a_dos(poids, valeurs, n, W):\n    dp = np.empty(W+1, dtype=int)\n\n    for w in range(W+1):\n      dp[w] = 0\n\n    for i in range(n):\n      for w in range(W, poids[i]-1, -1):\n        dp[w] = max(dp[w], dp[w - poids[i]] + valeurs[i])\n\n    return dp[W]",
@@ -292,7 +292,7 @@
   {
     "id": 30,
     "name": "Sous-tableau de somme maximale (Kadane)",
-    "category": "Programmation Dynamique et Optimisation",
+    "category": "Programmation Dynamique",
     "description": "Trouve la somme maximale d’un sous-tableau contigu dans un tableau contenant éventuellement des nombres négatifs (algorithme de Kadane).",
     "pseudocode": "Fonction kadane(t : Tab , n : Entier) : Entier\nDébut\n    max_actuel ← t[0]\n    max_global ← t[0]\n    Pour i de 1 à n-1 Faire\n        max_actuel ← max(t[i], max_actuel + t[i])\n        Si max_actuel > max_global Alors\n            max_global ← max_actuel\n        Fin Si\n    FinPour\n    Retourner max_global\nFin",
     "python": "def kadane(tab, n):\n    max_actuel = tab[0]\n    max_global = tab[0]\n    for i in range(1, n):\n        max_actuel = max(tab[i], max_actuel + tab[i])\n        if max_actuel > max_global:\n            max_global = max_actuel\n    return max_global",
@@ -412,7 +412,7 @@
   {
     "id": 42,
     "name": "Plus grand carré de 1 dans matrice binaire",
-    "category": "Programmation Dynamique et Optimisation",
+    "category": "Programmation Dynamique",
     "description": "Dans une matrice binaire (0 et 1), trouve la taille du plus grand carré dont tous les éléments valent 1.",
     "pseudocode": "Fonction plus_grand_carre_matrice(M : matrice, m, n : Entier) : Entier\nDébut\n    Pour i de 0 à m Faire\n        Pour j de 0 à n Faire\n            dp[i,j] ← 0\n        FinPour\n    FinPour\n    max_cote ← 0\n    Pour i de 1 à m Faire\n        Pour j de 1 à n Faire\n            Si M[i-1,j-1] = 1 Alors\n                dp[i,j] ← min(dp[i-1,j], dp[i,j-1], dp[i-1,j-1]) + 1\n                max_cote ← max(max_cote, dp[i,j])\n            FinSi\n        FinPour\n    FinPour\n\n    Retourner max_cote\nFin",
     "python": "import numpy as np\n\ndef plus_grand_carre_matrice(M, m, n):\n    # Initialisation de la matrice dp\n    dp = np.zeros((m + 1, n + 1), dtype=int)\n    max_cote = 0\n\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if M[i-1, j-1] == 1:   # NumPy array : M[i,j]\n                dp[i, j] = min(\n                    dp[i-1, j],\n                    dp[i, j-1],\n                    dp[i-1, j-1]\n                ) + 1\n                max_cote = max(max_cote, dp[i, j])\n\n    return max_cote",
@@ -562,7 +562,7 @@
   {
     "id": 61,
     "name": "Remplir tableau aléatoire",
-    "category": "Programmation Dynamique et Optimisation",
+    "category": "Programmation Dynamique",
     "description": "Remplit un tableau avec n entiers aléatoires compris entre a et b inclus.",
     "pseudocode": "Procédure RemplirAleatoire(@T : Tab, n : Entier, a : Entier, b : Entier)\nDébut\n    Pour i de 0 à n-1 Faire\n        T[i] ← Aléa(a, b)  \n    Fin Pour\nFin",
     "python": "import random\n\ndef remplir_aleatoire(T, n, a, b):\n    \n       for i in range(n):\n            T[i] = random.randint(a, b)",
@@ -1058,5 +1058,118 @@
     "python": "def saisie_Miniscule(m):\n    i = 0\n    while \"a\" <= m[i]<=\"z\" and i< len(m)-1 :\n        i = i+1\n    return(\"a\" <= m[i]<= \"z\")",
     "exampleInput": "Saisies utilisateur : \"Bonjour\" puis \"hello123\" puis \"python\"",
     "exampleOutput": "python"
+  },
+    {
+      "id": 111,
+      "name": "Approximation de sinus (Série de Taylor)",
+      "category": "Algorithmes d'approximation",
+      "description": "Calcule une valeur approchée de sin(x) pour x en radians en utilisant son développement limité : sin(x) ≈ x - x³/3! + x⁵/5! - ... Le calcul s'arrête lorsque la différence entre deux termes successifs (en valeur absolue) devient inférieure à epsilon (ε).",
+      "pseudocode": "Fonction approx_sinus(x : Réel, eps : Réel) : Réel\nDébut\n    somme ← x\n    terme ← x\n    i ← 1\n    Répéter\n        terme_precedent ← terme\n        terme ← -terme * (x * x) / ((2 * i) * (2 * i + 1))\n        somme ← somme + terme\n        i ← i + 1\n    Jusqu'à abs(terme) < eps\n    Retourner somme\nFin",
+      "python": "def approx_sinus(x, eps):\n    somme = x\n    terme = x\n    i = 1\n    while abs(terme) >= eps:\n        terme *= - (x * x) / ((2 * i) * (2 * i + 1))\n        somme += terme\n        i += 1\n    return somme",
+      "exampleInput": "x = 0.5236, eps = 0.0001",
+      "exampleOutput": "0.5"
+    },
+    {
+      "id": 112,
+      "name": "Approximation d'exponentielle",
+      "category": "Algorithmes d'approximation",
+      "description": "Estime la valeur de e^x en sommant les termes de sa série de Taylor : e^x ≈ 1 + x + x²/2! + x³/3! + ... Le calcul s'arrête lorsque la valeur du dernier terme ajouté devient inférieure à epsilon (ε).",
+      "pseudocode": "Fonction approx_expo(x : Réel, eps : Réel) : Réel\nDébut\n    somme ← 1.0\n    terme ← 1.0\n    i ← 1\n    Tant Que terme >= eps Faire\n        terme ← terme * (x / i)\n        somme ← somme + terme\n        i ← i + 1\n    Fin Tant Que\n    Retourner somme\nFin",
+      "python": "def approx_expo(x, eps):\n    somme = 1.0\n    terme = 1.0\n    i = 1\n    while terme >= eps:\n        terme *= (x / i)\n        somme += terme\n        i += 1\n    return somme",
+      "exampleInput": "x = 1, eps = 0.00001",
+      "exampleOutput": "2.71828..."
+    },
+   {
+      "id": 113,
+      "name": "Recherche du minimum (Descente de Gradient)",
+      "category": "Algorithmes d'Optimisation",
+      "description": "Trouve le minimum d'une fonction f(x) en se déplaçant de façon itérative dans la direction opposée à la dérivée.",
+      "pseudocode": "Fonction descente_gradient(x0 : Réel, taux : Réel, precision : Réel) : Réel\nDébut\n    x_actuel ← x0\n    Répéter\n        x_precedent ← x_actuel\n        x_actuel ← x_precedent - taux * derivee_f(x_precedent)\n    Jusqu'à abs(x_actuel - x_precedent) < precision\n    Retourner x_actuel\nFin",
+      "python": "def descente_gradient(x0, taux, precision, f_derivee):\n    x_actuel = x0\n    while True:\n        x_precedent = x_actuel\n        x_actuel = x_precedent - taux * f_derivee(x_precedent)\n        if abs(x_actuel - x_precedent) < precision:\n            break\n    return x_actuel",
+      "exampleInput": "x0 = 5, taux = 0.1, f'(x)=2x (pour f(x)=x²)",
+      "exampleOutput": "0.0 (environ)"
+    },
+
+    {
+      "id": 114,
+      "name": "Rendu de monnaie (Algorithme Glouton)",
+      "category": "Algorithmes d'Optimisation",
+      "description": "Cherche à rendre une somme donnée en utilisant le nombre minimal de pièces. L'algorithme choisit à chaque étape la pièce de plus grande valeur possible sans dépasser la somme restante.",
+      "pseudocode": "Procédure rendre_monnaie(somme : Entier, systeme_pieces : Tab)\nDébut\n    Trier systeme_pieces par ordre décroissant\n    Pour chaque piece de systeme_pieces Faire\n        NbPieces ← somme div piece\n        Afficher piece, \" x \", NbPieces\n        somme ← somme mod piece\n    FinPour\nFin",
+      "python": "def rendre_monnaie(somme, systeme_pieces):\n    # On suppose le système déjà trié décroissant\n    resultat = {}\n    for piece in systeme_pieces:\n        nb = somme // piece\n        if nb > 0:\n            resultat[piece] = nb\n        somme %= piece\n    return resultat",
+      "exampleInput": "somme = 48, pieces = [20, 10, 5, 2, 1]",
+      "exampleOutput": "{20: 2, 5: 1, 2: 1, 1: 1}"
+    },
+    {
+      "id": 115,
+      "name": "Le sac à dos (Approche Gloutonne)",
+      "category": "Algorithmes d'Optimisation",
+      "description": "Optimise le contenu d'un sac à dos de capacité limitée en choisissant les objets ayant le meilleur rapport valeur/poids.",
+      "pseudocode": "Procédure sac_a_dos(capacite : Réel, objets : Tab)\nDébut\n    Trier objets par rapport (valeur / poids) décroissant\n    PoidsTotal ← 0\n    Pour chaque obj de objets Faire\n        Si PoidsTotal + obj.poids <= capacite Alors\n            Ajouter obj au sac\n            PoidsTotal ← PoidsTotal + obj.poids\n        FinSi\n    FinPour\nFin",
+      "python": "def sac_a_dos(capacite, objets):\n    # objets est une liste de dictionnaires {'nom': 'A', 'poids': 10, 'valeur': 60}\n    objets_tries = sorted(objets, key=lambda x: x['valeur']/x['poids'], reverse=True)\n    sac = []\n    poids_actuel = 0\n    for obj in objets_tries:\n        if poids_actuel + obj['poids'] <= capacite:\n            sac.append(obj['nom'])\n            poids_actuel += obj['poids']\n    return sac",
+      "exampleInput": "capacité = 50, objets = [{'A', 10, 60}, {'B', 20, 100}, {'C', 30, 120}]",
+      "exampleOutput": "['A', 'B']"
+    },
+    {
+      "id": 116,
+      "name": "Plus court chemin (Dijkstra simplifié)",
+      "category": "Algorithmes d'Optimisation",
+      "description": "Trouve le chemin le plus court entre un sommet de départ et les autres sommets dans un graphe pondéré en choisissant toujours le sommet non visité le plus proche.",
+      "pseudocode": "Procédure dijkstra_simplifie(graphe : Graphe, depart : Sommet)\nDébut\n    Pour chaque sommet s Faire distance[s] ← Infini\n    distance[depart] ← 0\n    Tant qu'il reste des sommets non visités Faire\n        u ← sommet non visité avec distance minimale\n        Marquer u comme visité\n        Pour chaque voisin v de u Faire\n            Si distance[v] > distance[u] + poids(u, v) Alors\n                distance[v] ← distance[u] + poids(u, v)\n            FinSi\n        FinPour\n    FinTantQue\nFin",
+      "python": "def dijkstra_basique(graphe, depart):\n    # Représentation simplifiée pour l'enseignement\n    distances = {sommet: float('inf') for sommet in graphe}\n    distances[depart] = 0\n    non_visites = list(graphe.keys())\n    \n    while non_visites:\n        u = min(non_visites, key=lambda s: distances[s])\n        non_visites.remove(u)\n        \n        for voisin, poids in graphe[u].items():\n            nouvelle_dist = distances[u] + poids\n            if nouvelle_dist < distances[voisin]:\n                distances[voisin] = nouvelle_dist\n    return distances",
+      "exampleInput": "graphe = {'A': {'B': 1, 'C': 4}, 'B': {'C': 2}, 'C': {}}, depart = 'A'",
+      "exampleOutput": "{'A': 0, 'B': 1, 'C': 3}"
+    },
+  {
+    "id": 117,
+    "name": "Zéro d'une fonction (Dichotomie)",
+    "category": "Algorithmes d'approximation",
+    "description": "Trouve une valeur approchée de x telle que f(x) = 0 sur un intervalle [a, b] où f est continue et monotone. L'algorithme divise l'intervalle en deux à chaque étape. Le calcul s'arrête lorsque la largeur de l'intervalle (b - a) devient inférieure à epsilon (ε).",
+    "pseudocode": "Fonction f(x : Réel) : Réel\nDébut\n    Retourner x * x - 2\nFin\n\nFonction zero_fonction(a : Réel, b : Réel, eps : Réel) : Réel\nDébut\n    Tant Que (b - a) > eps Faire\n        m ← (a + b) / 2\n        Si f(a) * f(m) > 0 Alors\n            a ← m\n        Sinon\n            b ← m\n        Fin Si\n    Fin Tant Que\n    Retourner (a + b) / 2\nFin",
+    "python": "def f(x):\n    # Exemple pour trouver la racine de 2\n    return x * x - 2\n\ndef zero_dichotomie(a, b, eps):\n    while (b - a) > eps:\n        m = (a + b) / 2\n        if f(a) * f(m) > 0:\n            a = m\n        else:\n            b = m\n    return (a + b) / 2",
+    "exampleInput": "a = 0, b = 2, eps = 0.001",
+    "exampleOutput": "1.414..."
+  },
+  {
+    "id": 118,
+    "name": "Point Fixe d'une fonction",
+    "category": "Algorithmes d'approximation",
+    "description": "Calcule une valeur approchée du point fixe d'une fonction f (tel que f(x) = x) en utilisant une suite récurrente x_act = f(x_pre). Le calcul s'arrête lorsque la différence entre deux termes consécutifs |x_act - x_pre| devient inférieure à epsilon (ε).",
+    "pseudocode": "Fonction f(x : Réel) : Réel\nDébut\n    Retourner 1 - sin(x)\nFin\n\nProcédure point_fixe(eps : Réel)\nDébut\n    i ← 0\n    x_act ← 1\n    x_pre ← x_act + 2 * eps {Initialisation pour entrer dans la boucle}\n    Tant Que Abs(x_act - x_pre) >= eps Faire\n        x_pre ← x_act\n        x_act ← f(x_pre)\n        i ← i + 1\n    Fin Tant Que\n    Ecrire(\"Le point fixe est : \", x_act, \" trouvé après \", i, \" itérations.\")\nFin",
+    "python": "import math\n\ndef f(x):\n    # Exemple : f(x) = 1 - sin(x)\n    return 1 - math.sin(x)\n\ndef point_fixe(eps):\n    i = 0\n    x_act = 1.0\n    x_pre = x_act + 2 * eps\n    \n    while abs(x_act - x_pre) >= eps:\n        x_pre = x_act\n        x_act = f(x_pre)\n        i += 1\n        \n    print(f\"Le point fixe est : {x_act:.6f} trouvé après {i} itérations.\")",
+    "exampleInput": "eps = 0.00001",
+    "exampleOutput": "Le point fixe est : 0.510973 trouvé après 23 itérations."
+  },
+  {
+    "id": 119,
+    "name": "Approximation de Pi (Formule d'Euler)",
+    "category": "Algorithmes d'approximation",
+    "description": "Calcule une valeur approchée de π en utilisant la série d'Euler : π²/6 = 1 + 1/2² + 1/3² + ... + 1/n². La fonction retourne la valeur de π dès que la différence entre deux approximations successives devient inférieure à epsilon (ε).",
+    "pseudocode": "Fonction calculer_pi_euler(eps : Réel) : Réel\nDébut\n    s2 ← 1.0\n    s1 ← 0.0\n    i ← 2\n    Tant Que (Sqrt(6 * s2) - Sqrt(6 * s1)) >= eps Faire\n        s1 ← s2\n        s2 ← s1 + 1 / (i * i)\n        i ← i + 1\n    Fin Tant Que\n    Retourner Sqrt(6 * s2)\nFin",
+    "python": "import math\n\ndef calculer_pi_euler(eps):\n    s2 = 1.0\n    s1 = 0.0\n    i = 2\n    \n    # On boucle tant que la précision n'est pas atteinte\n    while (math.sqrt(6 * s2) - math.sqrt(6 * s1)) >= eps:\n        s1 = s2\n        s2 = s1 + 1 / (i * i)\n        i += 1\n        \n    return math.sqrt(6 * s2)",
+    "exampleInput": "eps = 0.0001",
+    "exampleOutput": "3.140638"
+  },
+  {
+    "id": 120,
+    "name": "Calcul d'aire : Méthode des Rectangles",
+    "category": "Algorithmes d'approximation",
+    "description": "Calcule une valeur approchée de l'intégrale d'une fonction f sur [a, b] en sommant les aires de n rectangles. On utilise ici le point milieu de chaque subdivision pour une meilleure précision.",
+    "pseudocode": "Fonction f(x : Réel) : Réel\nDébut\n    Retourner 1 / (1 + x * x)\nFin\n\nFonction aire_rectangles(a : Réel, b : Réel, n : Entier) : Réel\nDébut\n    h ← (b - a) / n\n    somme ← 0\n    x ← a + h / 2\n    Pour k de 1 à n Faire\n        somme ← somme + f(x)\n        x ← x + h\n    Fin Pour\n    Retourner somme * h\nFin",
+    "python": "def f(x):\n    return 1 / (1 + x * x)\n\ndef aire_rectangles(a, b, n):\n    h = (b - a) / n\n    somme = 0\n    x = a + h / 2\n    for k in range(n):\n        somme += f(x)\n        x += h\n    return somme * h",
+    "exampleInput": "a = 1, b = 5, n = 10",
+    "exampleOutput": "0.581..."
+  },
+  {
+    "id": 121,
+    "name": "Calcul d'aire : Méthode des Trapèzes",
+    "category": "Algorithmes d'approximation",
+    "description": "Estime l'aire sous la courbe d'une fonction f sur [a, b] en subdivisant l'intervalle en n trapèzes. L'aire de chaque trapèze est donnée par h * (f(x) + f(x+h)) / 2.",
+    "pseudocode": "Fonction f(x : Réel) : Réel\nDébut\n    Retourner 1 / (1 + x * x)\nFin\n\nFonction aire_trapezes(a : Réel, b : Réel, n : Entier) : Réel\nDébut\n    h ← (b - a) / n\n    somme ← (f(a) + f(a + h)) / 2\n    x ← a\n    Pour k de 1 à n - 1 Faire\n        x ← x + h\n        somme ← somme + (f(x) + f(x + h)) / 2\n    Fin Pour\n    Retourner somme * h\nFin",
+    "python": "def f(x):\n    return 1 / (1 + x * x)\n\ndef aire_trapezes(a, b, n):\n    h = (b - a) / n\n    # Aire du premier intervalle\n    somme = (f(a) + f(a + h)) / 2\n    x = a\n    for k in range(1, n):\n        x += h\n        somme += (f(x) + f(x + h)) / 2\n    return somme * h",
+    "exampleInput": "a = 1, b = 5, n = 10",
+    "exampleOutput": "0.579..."
   }
+
+
 ]

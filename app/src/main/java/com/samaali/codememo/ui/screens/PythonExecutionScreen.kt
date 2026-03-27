@@ -236,7 +236,7 @@ suspend fun executePythonRemote(code: String): String {
             put("files", org.json.JSONArray().put(JSONObject().apply { put("content", code) }))
         }
         val request = Request.Builder()
-            .url("https://emkc.org/api/v2/piston/execute")
+            .url("https://emkc.org/api/v2/piston/execute")   // ← Alternative plus stable
             .post(json.toString().toRequestBody("application/json".toMediaType()))
             .build()
 
